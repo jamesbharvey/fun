@@ -4,17 +4,37 @@ class HearthStoneDebugLogParser
   end
   def parse_file(filename)
     File.foreach(filename) {|x| @zones.push(parse_zone_line(x)) if x =~ /^\[Zone\]/  }
-    print "parsed file [#{filename}] containing #{@zones.size()} zone lines\n"
-#   print @zones.join()
+#    print "parsed file [#{filename}] containing #{@zones.size()} zone lines\n"
+    print @zones.join("\n")
   end
   def parse_zone_line(x)
-    x
+    HearthStoneDebugLogLine.new(x)
   end
 end
 
+
+# ZoneChangeList.Finish
+# ZoneChangeList.FireCompleteCallback
+# ZoneChangeList.OnUpdateLayoutComplete
+# ZoneChangeList.ProcessChanges
+# ZoneChangeList.UpdateDirtyZones
+# ZoneMgr.AddServerZoneChanges
+# ZoneMgr.CreateLocalChangeList
+# ZoneMgr.CreateLocalChangesFromTrigger
+# ZoneMgr.ProcessLocalChangeList
+
+
 class HearthStoneDebugLogLine
+  attr_reader :raw_line,:object,:method
   def initialize(line)
-    @object 
+    @raw_line = line
+    line =~ /^\[Zone\] (Zone\w+)\.(\w+)\W(.*)/ 
+    @object = $1
+    @method = $2
+    @rest_of_line = $3;
+  end
+  def to_s
+    "#{@object}.#{@method} #{@rest_of_line}"
   end
 end
 
@@ -27,5 +47,7 @@ end
 #p words_from_string("This is a test of the emergency broadcast system. emergency.com")
 
 parser = HearthStoneDebugLogParser.new();
-parser.parse_file("output_log.txt")
 
+ARGV.each do |file_name|
+  parser.parse_file(file_name)
+end
