@@ -5,7 +5,7 @@ class HearthStoneDebugLogParser
   def parse_file(filename)
     File.foreach(filename) {|x| @zones.push(parse_zone_line(x.chomp())) if x =~ /^\[Zone\]/  }
 #    print "parsed file [#{filename}] containing #{@zones.size()} zone lines\n"
-    @zones.select { | x | x.object == "ZoneChangeList" } .each { |x| print parse_event(x) }
+    @zones.select { | x | x.object == "ZoneChangeList" } .collect { |x| parse_event(x) }. select { |x| x != nil }.each {|x| print "#{x.pretty_s}\n" }
     end
   end
   def parse_zone_line(x)
@@ -17,14 +17,39 @@ class HearthStoneDebugLogParser
     end
     return nil
   end
+
   def parse_process_changes(debug_line)
     if debug_line.rest_of_line =~ /TRANSITIONING card/
-      if debug_line.rest_of_line =~ /FRIENDLY HAND/
-        if debug_line.rest_of_line =~ /name=(.*) id=/
-          return HearthStoneEvent.new("TRANSITION",$1,1)
+      if debug_line.rest_of_line =~ /FRIENDLY HAND/ 
+        if debug_line.rest_of_line =~ /name=(.*) id=(\d+)/
+          print debug_line.rest_of_line,"\n"
+          return HearthStoneEventCardDraw.new($1,$2,"FRIENDLY HAND")
         end
       end
+      if debug_line.rest_of_line =~ /OPPOSING HAND/ 
+        if debug_line.rest_of_line =~ /id=(\d+)/
+          print debug_line.rest_of_line,"\n"
+          return HearthStoneEventCardDraw.new("a card",$1,"OPPOSING HAND")
+        end
+      end
+      if debug_line.rest_of_line =~ /FRIENDLY PLAY/ 
+        return nil if debug_line.rest_of_line =~ /\(Hero\)$/
+        if debug_line.rest_of_line =~ /name=(.*) id=(\d+)/
+          print debug_line.rest_of_line,"\n"
+          return HearthStoneEventCardPlay.new($1,$2,"FRIENDLY PLAY")
+        end
+      end
+      if debug_line.rest_of_line =~ /OPPOSING PLAY/ 
+        return nil if debug_line.rest_of_line =~ /\(Hero\)$/
+        if debug_line.rest_of_line =~ /name=(.*) id=(\d+)/
+          print debug_line.rest_of_line,"\n"
+          return HearthStoneEventCardPlay.new($1,$2,"OPPOSING PLAY")
+        end
+      end
+      return nil
     end
+
+    return nil
   end
 
 
@@ -62,22 +87,41 @@ class HearthStoneEvent
     @sequence_id = sequence_id
   end
   def to_s
-    "#{@event_type} #{@card} #{@sequence_id}\n"
+    "#{@event_type} #{@card} #{@sequence_id}"
+  end
+  def pretty_s
+    to_s
   end
 
 end
 
-class HearthStoneEventTransition < HearthStoneEvent
+class HearthStoneEventCardTransition < HearthStoneEvent
   attr_reader :destination
+  def initialize(card,sequence_id,destination)
+    super("TRANSITION",card,sequence_id)
+    @destination = destination
+  end
+  def to_s
+    "#{super} #{@destination}\n"
+  end
+end
+
+class HearthStoneEventCardDraw < HearthStoneEventCardTransition
+  def pretty_s
+    "#{@destination} drew #{@card} id=#{sequence_id}"
+  end
+end
+
+class HearthStoneEventCardPlay < HearthStoneEventCardTransition
+  def pretty_s
+    "#{@destination} #{@card} id=#{sequence_id}"
+  end
 end
 
 
 def words_from_string(string)
   string.downcase.scan(/[\w']+/)
 end
-
-
-#p words_from_string("This is a test of the emergency broadcast system. emergency.com")
 
 parser = HearthStoneDebugLogParser.new();
 
