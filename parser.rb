@@ -3,7 +3,7 @@ class HearthStoneDebugLogParser
     @zones = []
   end
   def parse_file(filename)
-    File.foreach(filename) {|x| @zones.push(parse_zone_line(x)) if x =~ /^\[Zone\]/  }
+    File.foreach(filename) {|x| @zones.push(parse_zone_line(x.chomp())) if x =~ /^\[Zone\]/  }
 #    print "parsed file [#{filename}] containing #{@zones.size()} zone lines\n"
     print @zones.join("\n")
   end
@@ -28,13 +28,13 @@ class HearthStoneDebugLogLine
   attr_reader :raw_line,:object,:method
   def initialize(line)
     @raw_line = line
-    line =~ /^\[Zone\] (Zone\w+)\.(\w+)\W(.*)/ 
+    line =~ /^\[Zone\] (Zone\w+)\.(\w+)\W+(.*)/ 
     @object = $1
     @method = $2
     @rest_of_line = $3;
   end
   def to_s
-    "#{@object}.#{@method} #{@rest_of_line}"
+    "#{@object}.#{@method} #{@rest_of_line} [[[[[#{@raw_line}]]]]]"
   end
 end
 
