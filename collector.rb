@@ -5,7 +5,8 @@ require 'fileutils'
 ##
 ## where to look for the debug log that hearthstone outputs
 ##
-log_file = "D:\\Program Files (x86)\\Hearthstone\\Hearthstone_Data\\output_log.txt"
+
+log_file = "E:\\Program Files (x86)\\Hearthstone\\Hearthstone_Data\\output_log.txt"
 
 ##
 ## where to keep the files that we are going to archive
@@ -23,12 +24,14 @@ archive_directory = "C:\\Users\\James\\projects\\HearthStoneDebugLog\\archive"
 Dir.chdir(archive_directory)
 newest = Dir.entries(archive_directory).sort_by { |x| File.ctime(x) }.reverse[0]
 
+
 ##
 ## exit if the newest file in the archive is newer than the
 ## current log file
 ##
 
-exit if File.mtime(newest) >= File.mtime(log_file);
+
+exit if newest != "." && File.mtime(newest) >= File.mtime(log_file);
 
 ##
 ## if we get here, there is a new file. Don't copy it if it looks like
