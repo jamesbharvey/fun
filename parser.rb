@@ -1,4 +1,7 @@
 class HearthStoneDebugLogParser
+  def usage
+    puts "Please pass the file(s)to be parsed as command line arguments."
+  end
   def initialize
     @zones = []
   end
@@ -118,12 +121,11 @@ class HearthStoneEventCardPlay < HearthStoneEventCardTransition
   end
 end
 
-
-def words_from_string(string)
-  string.downcase.scan(/[\w']+/)
-end
+ARGV
 
 parser = HearthStoneDebugLogParser.new();
+
+parser.usage unless ARGV.size > 0;
 
 ARGV.each do |file_name|
   parser.parse_file(file_name)

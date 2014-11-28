@@ -24,12 +24,10 @@ archive_directory = "C:\\Users\\James\\projects\\HearthStoneDebugLog\\archive"
 Dir.chdir(archive_directory)
 newest = Dir.entries(archive_directory).sort_by { |x| File.ctime(x) }.reverse[0]
 
-
 ##
 ## exit if the newest file in the archive is newer than the
-## current log file
+## current log file (and we actually have a file, i.e. not "." )
 ##
-
 
 exit if newest != "." && File.mtime(newest) >= File.mtime(log_file);
 
@@ -41,9 +39,7 @@ exit if newest != "." && File.mtime(newest) >= File.mtime(log_file);
 
 rv = `C:\\Users\\James\\sysinternals\\handle.exe output_log`
 rv = rv.gsub(/\n/,'')
-if not (/No matching handles found/.match(rv))
-  exit
-end
+exit unless  (/No matching handles found/.match(rv))
 
 ##
 ## copy the file finally
