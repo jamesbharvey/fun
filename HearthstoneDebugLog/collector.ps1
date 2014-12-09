@@ -1,5 +1,5 @@
 ﻿
-$archiveDir = get-item C:\Users\James\projects\HearthStoneDebugLog\archive
+$archiveDir = get-item C:\Users\James\projects\fun\HearthstoneDebugLog\archive
 
 $logFile = get-item "E:\Program Files (x86)\Hearthstone\Hearthstone_Data\output_log.txt"
 

@@ -14,7 +14,7 @@ log_file = "E:\\Program Files (x86)\\Hearthstone\\Hearthstone_Data\\output_log.t
 ## CREATE THIS DIRECTORY BEFORE YOU RUN THIS PROGRAM
 ##
 
-archive_directory = "C:\\Users\\James\\projects\\HearthStoneDebugLog\\archive"
+archive_directory = "C:\\Users\\James\\projects\\fun\\HearthstoneDebugLog\\archive"
 
 ##
 ## get the newest file in the archive for us to compare against the most 
