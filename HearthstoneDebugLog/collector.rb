@@ -17,6 +17,12 @@ log_file = "E:\\Program Files (x86)\\Hearthstone\\Hearthstone_Data\\output_log.t
 archive_directory = "C:\\Users\\James\\projects\\fun\\HearthstoneDebugLog\\archive"
 
 ##
+## first make sure we actually have a log file.
+##
+
+exit unless File.exist?(log_file) && File.stat(log_file).size > 0;
+
+##
 ## get the newest file in the archive for us to compare against the most 
 ## recent live log
 ##
@@ -29,12 +35,14 @@ newest = Dir.entries(archive_directory).sort_by { |x| File.ctime(x) }.reverse[0]
 ## current log file (and we actually have a file, i.e. not "." )
 ##
 
-exit if newest != "." && File.mtime(newest) >= File.mtime(log_file);
+
+exit if File.mtime(newest) <= File.mtime(log_file);
+exit if newest == "."
 
 ##
-## if we get here, there is a new file. Don't copy it if it looks like
-## hearthstone is open right now. Check this by seeing if the file has
-## a handle open on it, using the sysinternal handle utility
+## if we get here, there is a new file with nonzero size. Don't copy it if it
+## looks like hearthstone is open right now. Check this by seeing if the
+## file has a handle open on it, using the sysinternal handle utility
 ##
 
 rv = `C:\\Users\\James\\sysinternals\\handle.exe output_log`
