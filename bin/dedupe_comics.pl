@@ -67,31 +67,31 @@ for my $key (keys %files) {
     say "#######################################################";
     say "Keep:   ",$keep->[0] , ", ",format_bytes($keep->[1]);
     for (@candidates) {
-	say "Delete: ",$_->[0] , ", ",format_bytes($_->[1]);
+        say "Delete: ",$_->[0] , ", ",format_bytes($_->[1]);
     }
     say "#######################################################";
     my $have_answer = 0;
     my $answer;
     while ( not $have_answer ) {
-	$answer = lc $term->readline($prompt);
-	$have_answer = ($answer eq 'y' or $answer eq 'n') ? 1 : 0;
-	last if $have_answer;
-	say "Please answer y or n."
+        $answer = lc $term->readline($prompt);
+        $have_answer = ($answer eq 'y' or $answer eq 'n') ? 1 : 0;
+        last if $have_answer;
+        say "Please answer y or n."
     }
     if ($answer eq 'y') {
-	for (@candidates) {
-	    say "deleting [",$_->[0],"]....";
-	    if (1) {
-		$num_files_deleted++;
-		$bytes_saved += $_->[1];
-	    } else { 
-		warn "Could not unlink $_->[0]: $!";
-	    }
+        for (@candidates) {
+            say "deleting [",$_->[0],"]....";
+            if (1) {
+                $num_files_deleted++;
+                $bytes_saved += $_->[1];
+            } else { 
+                warn "Could not unlink $_->[0]: $!";
+            }
 
-	}
+        }
     }
     if ($answer eq 'n') {
-	say "Skipping deletion......:";
+        say "Skipping deletion......:";
     } 
 }
 
