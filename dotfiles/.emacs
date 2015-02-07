@@ -5,8 +5,11 @@
 ;; do not make backup files
  (setq make-backup-files nil)
 
+(load-theme 'desert t t)
+(enable-theme 'desert)
+
 ;; Make our default background gray
-(add-to-list 'default-frame-alist '(background-color . "lightgray"))
+;;(add-to-list 'default-frame-alist '(background-color . "lightgray"))
 
 
 
