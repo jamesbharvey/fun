@@ -71,6 +71,7 @@ my $prompt = "Execute:y/n?";
 for my $key (keys %files) {
     my @candidates = map { [ $_ , (stat($_))[7] ] } @{$files{$key}};
     @candidates = sort { $a->[1] <=> $b->[1] } @candidates;
+
     my $keep = shift @candidates;
 
     say "#######################################################";
