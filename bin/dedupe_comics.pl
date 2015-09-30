@@ -26,6 +26,18 @@ my $term = Term::ReadLine->new('CB[RZ] deduper');
 
 my $remaining_bytes = 0;
 
+
+##
+## check for variant covers
+##
+sub is_variant {
+    my $filename = shift;
+    return 1 if $filename =~ /variant/i;
+    # file size < 5MB probably means it is a cover by itself
+    return 1 if (stat $filename)[7] < 5_000_000;
+    return 0;
+}
+
 sub add_entry {
     my $filename = shift;
     my $key = canonicalize($filename);
@@ -69,9 +81,12 @@ my $num_files_deleted = 0;
 my $prompt = "Execute:y/n?";
 
 for my $key (keys %files) {
-    my @candidates = map { [ $_ , (stat($_))[7] ] } @{$files{$key}};
-    @candidates = sort { $a->[1] <=> $b->[1] } @candidates;
+    my @candidates = map { [ $_ , (stat($_))[7] , is_variant($_ )] }
+    @{$files{$key}};
 
+    @candidates = sort { $a->[2] <=> $b->[2]
+                  || $a->[1] <=> $b->[1] } @candidates;
+    
     my $keep = shift @candidates;
 
     say "#######################################################";
