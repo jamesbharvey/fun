@@ -9,7 +9,7 @@ use FindBin;
 use lib "$FindBin::Bin/../lib/perl";
 use Number::Bytes::Human qw(format_bytes);
 use Term::ReadLine;
-
+use File::Basename qw(basename);
 
 my %files;
 my %unduplicated;
@@ -27,6 +27,7 @@ sub add_entry {
 
 sub canonicalize {
     my $filename = shift;
+    $filename = basename($filename);      #strip directory if there
     $filename =~ s/\.cb[rz]$//i;          #strip file type
     $filename =~ s/\([^\(\)]*?\)//g;      #get rid of anything inside any ()'s
     $filename =~ s/\s+/ /g;               #replace multiple whitespace chars with one
@@ -37,10 +38,10 @@ sub canonicalize {
     return $filename;
 }
 
-while (<*.cbr>) {
+while (<*/*.cbr>) {
     add_entry($_);
 }
-while (<*.cbz>) {
+while (<*/*.cbz>) {
     add_entry($_);
 }
 
@@ -81,7 +82,7 @@ for my $key (keys %files) {
     if ($answer eq 'y') {
         for (@candidates) {
             say "deleting [",$_->[0],"]....";
-            if (1) {
+            if (unlink $_->[0]) {
                 $num_files_deleted++;
                 $bytes_saved += $_->[1];
             } else { 
