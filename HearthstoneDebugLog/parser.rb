@@ -8,20 +8,26 @@ class HearthStoneDebugLogParser
   def parse_file(filename)
     File.foreach(filename) {|x| @zones.push(parse_zone_line(x.chomp())) if x =~ /^\[Zone\]/  }
 #    print "parsed file [#{filename}] containing #{@zones.size()} zone lines\n"
-    @zones.select { | x | x.object == "ZoneChangeList" } .collect { |x| parse_event(x) }. select { |x| x != nil }.each {|x| print "#{x.pretty_s}\n" }
+    @zones.select { | x | x.object == "ZoneChangeList" } 
+          .collect { |x| parse_event(x) }
+          .select { |x| x != nil }
+          .each {|x| print "#{x.pretty_s}\n" }
     end
   end
+
   def parse_zone_line(x)
     HearthStoneDebugLogLine.new(x)
   end
+
   def parse_event(debug_line)
     if debug_line.object == "ZoneChangeList" && debug_line.method == "ProcessChanges" 
-      return parse_process_changes(debug_line)
+      return parse_process_zone_changes(debug_line)
     end
     return nil
   end
 
-  def parse_process_changes(debug_line)
+
+  def parse_process_zone_changes(debug_line)
     if debug_line.rest_of_line =~ /TRANSITIONING card/
       if debug_line.rest_of_line =~ /FRIENDLY HAND/ 
         if debug_line.rest_of_line =~ /name=(.*) id=(\d+)/
