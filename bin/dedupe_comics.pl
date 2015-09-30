@@ -10,6 +10,14 @@ use lib "$FindBin::Bin/../lib/perl";
 use Number::Bytes::Human qw(format_bytes);
 use Term::ReadLine;
 use File::Basename qw(basename);
+use Getopt::Long qw(GetOptions);
+
+my $test;
+my $noprompt;
+
+GetOptions("test"     => \$test,
+           "noprompt" => \$noprompt)
+    or die "Error in command line arguments.\n";
 
 my %files;
 my %unduplicated;
@@ -71,6 +79,28 @@ for my $key (keys %files) {
         say "Delete: ",$_->[0] , ", ",format_bytes($_->[1]);
     }
     say "#######################################################";
+
+    if ($test) {
+	$num_files_deleted++;
+	for (@candidates) {
+	    $bytes_saved += $_->[1];
+	}
+	next;
+    }
+
+    if ($noprompt) {
+        for (@candidates) {
+            say "deleting [",$_->[0],"]....";
+            if (unlink $_->[0]) {
+                $num_files_deleted++;
+                $bytes_saved += $_->[1];
+            } else {
+                warn "Could not unlink $_->[0]: $!";
+            }
+        }
+	next;
+    }
+
     my $have_answer = 0;
     my $answer;
     while ( not $have_answer ) {
