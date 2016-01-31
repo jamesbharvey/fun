@@ -55,5 +55,6 @@ for my $dir (@tvdirs) {
     }
 }
 
-
+system "umount","/tmp/uriah/Grown-ups";
+system "umount","/tmp/uriah/KidsVideo";
 
