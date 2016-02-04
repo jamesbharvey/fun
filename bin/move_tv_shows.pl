@@ -24,37 +24,39 @@ sub is_mounted
 sub do_mount
 {
     my $dir = shift;
+    return 1 if is_mounted($dir);
     system "mkdir","-p","/tmp/uriah/$dir";
     system "mount","-t","smbfs", "smb://videos:1\@uriah/$dir", "/tmp/uriah/$dir";
 }
 
-do_mount("Grown-ups") if not is_mounted("Grown-ups");
-do_mount("KidsVideo") if not is_mounted("KidsVideo");
- 
+do_mount("Grown-ups");
+do_mount("KidsVideo");
+do_mount("books"); 
+do_mount("comics");
+
 opendir(my $dh, ".") || die;
-my @tvdirs = grep { !/^\./ && -d $_ } readdir $dh;
+my @dirs = grep { !/^\./ && -d $_ } readdir $dh;
 closedir $dh;
 
-for my $dir (@tvdirs) {
+for my $dir (@dirs) {
     my $dir_to_pop = pushd $dir; # pop happens automagically
     next unless -s "move_tv_shows_to.txt";
     open my $dest_fh, "move_tv_shows_to.txt";
     my $dest_path = <$dest_fh>;
     chomp $dest_path;
     close $dest_fh;
-    $dest_path =~ s/ /\\ /g;
-    $dest_path =~ s/([)(])/\\$1/g;
 
     opendir(my $dh, ".") || die;
-    my @to_copy = grep { !/^\./ && ($_ ne "move_tv_shows_to.txt") } readdir $dh;
+    my @to_move = grep { !/^\./ && ($_ ne "move_tv_shows_to.txt") } readdir $dh;
     closedir $dh;
-    for my $item (@to_copy) {
-	$item =~ s/ /\\ /g;
-	print  "mv $item /tmp/uriah/$dest_path","\n";
-	system "mv", "$item", "/tmp/uriah/$dest_path";
+    for my $item (@to_move) {
+	print  "mv \"$item\" /tmp/uriah/$dest_path","\n";
+	system "mv", "-vn","$item", "/tmp/uriah/$dest_path";
     }
 }
 
 system "umount","/tmp/uriah/Grown-ups";
 system "umount","/tmp/uriah/KidsVideo";
+system "umount","/tmp/uriah/books";
+system "umount","/tmp/uriah/comics";
 
