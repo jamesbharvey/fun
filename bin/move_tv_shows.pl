@@ -49,6 +49,7 @@ for my $dir (@dirs) {
     opendir(my $dh, ".") || die;
     my @to_move = grep { !/^\./ && ($_ ne "move_tv_shows_to.txt") } readdir $dh;
     closedir $dh;
+    system "mkdir","-p","/tmp/uriah/$dest_path";
     for my $item (@to_move) {
 	print  "mv \"$item\" /tmp/uriah/$dest_path","\n";
 	system "mv", "-vn","$item", "/tmp/uriah/$dest_path";
