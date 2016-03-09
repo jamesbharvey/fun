@@ -29,6 +29,13 @@ sub do_mount
     system "mount","-t","smbfs", "smb://videos:1\@uriah/$dir", "/tmp/uriah/$dir";
 }
 
+sub my_system
+{
+    die @_ unless 0 == system @_;
+}
+
+
+
 do_mount("Grown-ups");
 do_mount("KidsVideo");
 do_mount("books"); 
@@ -46,18 +53,18 @@ for my $dir (@dirs) {
     chomp $dest_path;
     close $dest_fh;
 
-    opendir(my $dh, ".") || die;
+    opendir(my $dh, ".");
     my @to_move = grep { !/^\./ && ($_ ne "move_tv_shows_to.txt") } readdir $dh;
     closedir $dh;
-    system "mkdir","-p","/tmp/uriah/$dest_path";
+    my_system "mkdir","-p","/tmp/uriah/$dest_path";
     for my $item (@to_move) {
 	print  "mv \"$item\" /tmp/uriah/$dest_path","\n";
-	system "mv", "-vn","$item", "/tmp/uriah/$dest_path";
+	my_system "mv", "-vn","$item", "/tmp/uriah/$dest_path";
     }
 }
 
-system "umount","/tmp/uriah/Grown-ups";
-system "umount","/tmp/uriah/KidsVideo";
-system "umount","/tmp/uriah/books";
-system "umount","/tmp/uriah/comics";
+my_system "umount","/tmp/uriah/Grown-ups";
+my_system "umount","/tmp/uriah/KidsVideo";
+my_system "umount","/tmp/uriah/books";
+my_system "umount","/tmp/uriah/comics";
 
