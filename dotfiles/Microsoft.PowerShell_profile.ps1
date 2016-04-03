@@ -5,7 +5,12 @@ $candidatePaths = "C:\Program Files (x86)\Git\bin",
                   "C:\Users\James\sysinternals",
                   "C:\Program Files (x86)\ErgoEmacs\bin",
                   "C:\Users\James\projects\fun\bin",
-                  "C:\Users\James\Documents\fun\bin"
+                  "C:\Users\James\Documents\fun\bin",
+                  "C:\MinGW\bin",
+                  "C:\Program Files\emacs\bin",
+		  "C:\Users\James\Desktop\emacs\bin"
+		  
+                  
                   
 foreach ($path in $candidatePaths) {
     if (Test-Path $path) {
