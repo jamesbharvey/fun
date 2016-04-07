@@ -8,7 +8,9 @@ $candidatePaths = "C:\Program Files (x86)\Git\bin",
                   "C:\Users\James\Documents\fun\bin",
                   "C:\MinGW\bin",
                   "C:\Program Files\emacs\bin",
-		  "C:\Users\James\Desktop\emacs\bin"
+                  "C:\Users\James\Desktop\emacs\bin",
+                  "C:\rakudo\bin"
+
 		  
                   
                   
