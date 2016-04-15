@@ -1,6 +1,17 @@
 
 
 
+
+
+
+;; make emacs start in the home directory
+;; on windows esp - in windows need to set
+;; this env var
+(setq default-directory (getenv "HOME"))
+
+(load-file ".emacs.small.el")
+
+
 ;; Added by Package.el.  This must come before configurations of
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
@@ -10,29 +21,17 @@
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 
-
-;; edit template toolkit files in html mode
-(add-to-list 'auto-mode-alist '("\\.tt$" . html-mode))
+;; Make our default background gray
+;;(add-to-list 'default-frame-alist '(background-color . "lightgray"))
 
 ;; disabling keybinds of ergoemacs and cua mode
 ;;(ergoemacs-mode 0)
 ;;(cua-mode 0)
 
-;; do not make backup files
-(setq make-backup-files nil)
 
-(load-theme 'desert t t)
-(enable-theme 'desert)
-
-
-;; start speedbar if we're using a window system
-(when window-system (speedbar t))
-
-;; Make our default background gray
-;;(add-to-list 'default-frame-alist '(background-color . "lightgray"))
-
-;; displays the time in the status bar
-(display-time)
+;; disabling keybinds of ergoemacs and cua modez
+;;(ergoemacs-mode 0)
+;;(cua-mode 0)
 
 
 (custom-set-variables
