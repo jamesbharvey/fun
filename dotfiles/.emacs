@@ -1,9 +1,4 @@
 
-
-
-
-
-
 ;; make emacs start in the home directory
 ;; on windows esp - in windows need to set
 ;; this env var
@@ -23,11 +18,6 @@
 
 ;; Make our default background gray
 ;;(add-to-list 'default-frame-alist '(background-color . "lightgray"))
-
-;; disabling keybinds of ergoemacs and cua mode
-;;(ergoemacs-mode 0)
-;;(cua-mode 0)
-
 
 ;; disabling keybinds of ergoemacs and cua modez
 ;;(ergoemacs-mode 0)
