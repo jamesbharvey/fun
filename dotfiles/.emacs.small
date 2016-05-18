@@ -1,0 +1,35 @@
+
+
+;; edit template toolkit files in html mode
+(add-to-list 'auto-mode-alist '("\\.tt$" . html-mode))
+
+;; use whitespace mode for YAML files
+;; doesn't work - any way to load to modes at once?
+(add-to-list 'auto-mode-alist '("\\.yml$" . whitespace-mode))
+
+;; skip the startup message/screen
+(setq inhibit-startup-message t)
+
+;; never use hardware tabs
+(setq-default indent-tabs-mode nil)
+
+;; make emacs start in the home directory
+;; on windows esp - in windows need to set
+;; this env var
+(setq default-directory (getenv "HOME"))
+
+;; make ctrl-o switch to next window instead of
+;; default useless mapping open-line
+;; (I always just press return if I need that...)
+(global-set-key (kbd "C-o") 'other-window)
+;;(define-key map "\C-o" 'other-window)
+;;(define-key map (kbd "C-x o") 'open-line)
+
+;; do not make backup files
+(setq make-backup-files nil)
+
+;; displays the time in the status bar
+(display-time)
+
+;; start speedbar if we're using a window system
+(when window-system (speedbar t))
