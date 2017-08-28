@@ -13,7 +13,7 @@ $candidatePaths = "C:\Users\james.harvey\go\bin",
 
 foreach ($path in $candidatePaths) {
     if (Test-Path $path) {
-        Add-PathVariable -Name Path $path^M
+        Add-PathVariable -Name Path $path
     }
 }
 
@@ -35,4 +35,4 @@ $env:GOPATH=go env GOPATH
 #$env:GOPATH="C:\Users\james.harvey\IdeaProjects\minos\src\minos"
 $env:JAVA_HOME="C:\Program Files\Java\jdk1.8.0_121\"
 
-Import-Module posh-docker^M
+Import-Module posh-docker
