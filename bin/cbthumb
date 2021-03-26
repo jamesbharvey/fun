@@ -59,9 +59,17 @@ sub canonicalize {
     return $file_name;
 }
 
+sub make_thumbnail_from_first_page { 
+    my ($archive_file, $first_page) = @_;
+    my $thumbnail_name = "$archive_file.jpg";
+    system("convert", $first_page, "-resize", "400x615", $thumbnail_name);
+    unlink($first_page);
+}
+
 opendir (my $dir_handle,".") || die "can't opendir '.' ";
 my @cbr_files = grep { /\.cbr$/i && -f } readdir($dir_handle);
 rewinddir($dir_handle);
+@cbr_files = ();
 my @cbz_files = grep { /\.cbz$/i && -f } readdir($dir_handle);
 rewinddir($dir_handle);
 my @pdf_files = grep { /\.pdf$/i && -f } readdir($dir_handle);
@@ -69,25 +77,45 @@ my @pdf_files = grep { /\.pdf$/i && -f } readdir($dir_handle);
 for (@cbr_files) {
     my $rar_file = $_;
     my $quoted_rar_file = quotemeta($rar_file);
-    say "rar_file:",$rar_file;
-    say "quoted:",$quoted_rar_file;
     my $first_page;
     open(my $lines, "unrar -t $quoted_rar_file |") || die "can't open quoted rar file: $!";
     my @jpgs;
     while (<$lines>) {
+	chomp;
 	next unless /\.jpg$/i;
 	next unless /\d\d\d/;
-	chomp;
 	push @jpgs, $_;
     }
     @jpgs = sort @jpgs;
     $first_page = $jpgs[0];
-    chomp $first_page;
     $first_page =~ s/^\s+//;
     system("unrar", $rar_file, $first_page);
-    my $thumbnail_name = "$rar_file.jpg";
-    system("convert", $first_page, "-resize", "400x615", $thumbnail_name);
-    unlink($first_page);
+    make_thumbnail_from_first_page($rar_file,$first_page);
+}
+
+
+for (@cbz_files) {
+    my $zip_file = $_;
+    my $quoted_zip_file = quotemeta($zip_file);
+    say "zip_file:",$zip_file;
+    say "quoted:",$quoted_zip_file;
+    my $first_page;
+    open(my $lines, "unzip -l $quoted_zip_file |") || die "can't open quoted zip file: $!";
+    my @jpgs;
+    while (<$lines>) {
+	my $path;
+	chomp;
+	next unless /\.jpg$/i;
+	next unless /\s+\d+\s+\d{4}\-\d\d\-\d\d\s+\d\d\:\d\d\s+(\S+.*)$/;
+	$path = $1;
+	push @jpgs, $path;
+    }
+    @jpgs = sort @jpgs;
+    $first_page = $jpgs[0];
+    $first_page =~ s/^\s+//;
+    say "first page:",$first_page;
+    system("unzip","-u", $zip_file, $first_page);
+    make_thumbnail_from_first_page($zip_file,$first_page);
 }
 
 
