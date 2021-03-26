@@ -64,6 +64,10 @@ while (<*/*.cbr>) {
 while (<*/*.cbz>) {
     add_entry($_);
 }
+while (<*/*.pdf>) {
+    add_entry($_);
+}
+
 
 # we only want to delete duplicates
 
