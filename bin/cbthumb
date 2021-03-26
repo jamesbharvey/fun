@@ -81,7 +81,7 @@ for (@cbr_files) {
     open(my $lines, "unrar -t $quoted_rar_file |") || die "can't open quoted rar file: $!";
     my @jpgs;
     while (<$lines>) {
-	chomp;
+ 	chomp;
 	next unless /\.jpg$/i;
 	next unless /\d\d\d/;
 	push @jpgs, $_;
@@ -118,9 +118,20 @@ for (@cbz_files) {
     make_thumbnail_from_first_page($zip_file,$first_page);
 }
 
-
-
-exit 0;
+for (@pdf_files) {
+    system("gs",
+	   "-dBATCH",
+	   "-dNOPAUSE",
+	   "-dSAFER",
+	   "-dFirstPage=1",
+	   "-dLastPage=1",
+	   "-sDEVICE=jpeg",
+	   "-dJPEGQ=30",
+	   "-r400x615",
+	   "-sOutputFile=$_.jpg",
+	   $_
+	);
+}
 
 while (<*/*.cbz>) {
     add_entry($_);
