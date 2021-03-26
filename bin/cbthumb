@@ -3,8 +3,9 @@
 # vim: filetype=perl5
 #
 # needs unrar
+# needs unzip
 # needs imagemagic "convert" utility
-#
+# needs gs (ghostscript)
 #
 
 use feature qw(say);
@@ -18,6 +19,8 @@ use Number::Bytes::Human qw(format_bytes);
 use Term::ReadLine;
 use File::Basename qw(basename);
 use Getopt::Long qw(GetOptions);
+use URI::Encode;
+
 
 my $test;
 my $noprompt;
@@ -69,10 +72,11 @@ sub make_thumbnail_from_first_page {
 opendir (my $dir_handle,".") || die "can't opendir '.' ";
 my @cbr_files = grep { /\.cbr$/i && -f } readdir($dir_handle);
 rewinddir($dir_handle);
-@cbr_files = ();
 my @cbz_files = grep { /\.cbz$/i && -f } readdir($dir_handle);
 rewinddir($dir_handle);
 my @pdf_files = grep { /\.pdf$/i && -f } readdir($dir_handle);
+
+say "cbr_files",@cbr_files;
 
 for (@cbr_files) {
     my $rar_file = $_;
@@ -91,8 +95,8 @@ for (@cbr_files) {
     $first_page =~ s/^\s+//;
     system("unrar", $rar_file, $first_page);
     make_thumbnail_from_first_page($rar_file,$first_page);
+    say "rarfile:",$rar_file;
 }
-
 
 for (@cbz_files) {
     my $zip_file = $_;
@@ -133,93 +137,27 @@ for (@pdf_files) {
 	);
 }
 
-while (<*/*.cbz>) {
-    add_entry($_);
+opendir (my $dir_handle,".") || die "can't opendir '.' ";
+@cbr_files = grep { /\.cbr$/i && -f } readdir($dir_handle);
+rewinddir($dir_handle);
+@cbz_files = grep { /\.cbz$/i && -f } readdir($dir_handle);
+rewinddir($dir_handle);
+@pdf_files = grep { /\.pdf$/i && -f } readdir($dir_handle);
+
+
+open my $index_file, ">", "index.html";
+
+select $index_file;
+say "<html>";
+say "<head><title>comic index</title></head>";
+say "<body>";
+
+for (@cbr_files, @cbz_files, @pdf_files) {
+    my $archive = URI::Encode::uri_encode($_);
+    say "<a href=\"$archive\"><img src=\"$archive.jpg\" height=\"600\" width=\"415\"></a><br><br>";
 }
 
-
-
-
-# we only want to delete duplicates
-
-for (keys %files) {
-    next if @{$files{$_}} > 1;
-    $unduplicated{$_} = delete $files{$_};
-    $remaining_bytes += (stat $unduplicated{$_}->[0])[7];
-}
-
-
-# keep only the smallest file
-
-my $bytes_saved = 0;
-my $num_files_deleted = 0;
-my $prompt = "Execute:y/n?";
-
-for my $key (keys %files) {
-    my @candidates = map { [ $_ , (stat($_))[7] , is_variant_cover($_ )] }
-    @{$files{$key}};
-
-    @candidates = sort { $a->[2] <=> $b->[2]
-                  || $a->[1] <=> $b->[1] } @candidates;
+say "</body>";
+say "</html>";
+close $index_file;    
     
-    my $keep = shift @candidates;
-
-    say "#######################################################";
-    say "Keep:   ",$keep->[0] , ", ",format_bytes($keep->[1]);
-    for (@candidates) {
-        say "Delete: ",$_->[0] , ", ",format_bytes($_->[1]);
-    }
-    say "#######################################################";
-
-    if ($test) {
-	$num_files_deleted++;
-	for (@candidates) {
-	    $bytes_saved += $_->[1];
-	}
-	next;
-    }
-
-    if ($noprompt) {
-        for (@candidates) {
-            say "deleting [",$_->[0],"]....";
-            if (unlink $_->[0]) {
-                $num_files_deleted++;
-                $bytes_saved += $_->[1];
-            } else {
-                warn "Could not unlink $_->[0]: $!";
-            }
-        }
-	next;
-    }
-
-    my $have_answer = 0;
-    my $answer;
-    while ( not $have_answer ) {
-        $answer = lc $term->readline($prompt);
-        $have_answer = ($answer eq 'y' or $answer eq 'n') ? 1 : 0;
-        last if $have_answer;
-        say "Please answer y or n."
-    }
-    if ($answer eq 'y') {
-        for (@candidates) {
-            say "deleting [",$_->[0],"]....";
-            if (unlink $_->[0]) {
-                $num_files_deleted++;
-                $bytes_saved += $_->[1];
-            } else { 
-                warn "Could not unlink $_->[0]: $!";
-            }
-
-        }
-    }
-    if ($answer eq 'n') {
-        say "Skipping deletion......:";
-    } 
-}
-
-say "[$num_files_deleted] files deleted saving [",format_bytes($bytes_saved),"] of space.";
-say "[",scalar(keys %unduplicated) + scalar(keys %files),"] unique files remaining for [",format_bytes($remaining_bytes),"]."
-
-
-
-
