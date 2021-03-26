@@ -1,0 +1,186 @@
+#!/usr/bin/perl
+
+# vim: filetype=perl5
+#
+# needs unrar
+# needs imagemagic "convert" utility
+#
+#
+
+use feature qw(say);
+use warnings;
+use strict;
+use autodie;
+use Data::Dumper;
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl";
+use Number::Bytes::Human qw(format_bytes);
+use Term::ReadLine;
+use File::Basename qw(basename);
+use Getopt::Long qw(GetOptions);
+
+my $test;
+my $noprompt;
+
+GetOptions("test"     => \$test,
+           "noprompt" => \$noprompt)
+    or die "Error in command line arguments.\n";
+
+my %files;
+my %unduplicated;
+my $term = Term::ReadLine->new('CB[RZ] deduper');
+my $remaining_bytes = 0;
+
+sub is_variant_cover {
+    my $file_name = shift;
+    return 1 if $file_name =~ /variant/i;
+    # file size < 5MB probably means it is a cover by itself
+    return 1 if (stat $file_name)[7] < 5_000_000;
+    return 0;
+}
+
+sub add_entry {
+    my $file_name = shift;
+    my $key = canonicalize($file_name);
+    $files{$key} ||= []; 
+    push @{$files{$key}} ,$file_name;
+}
+
+sub canonicalize {
+    my $file_name = shift;
+    $file_name = basename($file_name);     #strip directory if there
+    $file_name =~ s/\.cb[rz]$//i;          #strip file type
+    $file_name =~ s/\([^\(\)]*?\)//g;      #get rid of anything inside any ()'s
+    $file_name =~ s/\s+/ /g;               #replace multiple whitespace chars with one
+    $file_name =~ s/^\s+//;                #strip leading whitespace
+    $file_name =~ s/\s+$//;                #strip trailing whitespace
+    $file_name =~ s/(\b)0+(\d+\b)/$1$2/g;  #strip leading zeroes in numbers
+    $file_name = lc $file_name;
+    return $file_name;
+}
+
+opendir (my $dir_handle,".") || die "can't opendir '.' ";
+my @cbr_files = grep { /\.cbr$/i && -f } readdir($dir_handle);
+rewinddir($dir_handle);
+my @cbz_files = grep { /\.cbz$/i && -f } readdir($dir_handle);
+rewinddir($dir_handle);
+my @pdf_files = grep { /\.pdf$/i && -f } readdir($dir_handle);
+
+for (@cbr_files) {
+    my $rar_file = $_;
+    my $quoted_rar_file = quotemeta($rar_file);
+    say "rar_file:",$rar_file;
+    say "quoted:",$quoted_rar_file;
+    my $first_page;
+    open(my $lines, "unrar -t $quoted_rar_file |") || die "can't open quoted rar file: $!";
+    my @jpgs;
+    while (<$lines>) {
+	next unless /\.jpg$/i;
+	next unless /\d\d\d/;
+	chomp;
+	push @jpgs, $_;
+    }
+    @jpgs = sort @jpgs;
+    $first_page = $jpgs[0];
+    chomp $first_page;
+    $first_page =~ s/^\s+//;
+    system("unrar", $rar_file, $first_page);
+    my $thumbnail_name = "$rar_file.jpg";
+    system("convert", $first_page, "-resize", "400x615", $thumbnail_name);
+    unlink($first_page);
+}
+
+
+
+exit 0;
+
+while (<*/*.cbz>) {
+    add_entry($_);
+}
+
+
+
+
+# we only want to delete duplicates
+
+for (keys %files) {
+    next if @{$files{$_}} > 1;
+    $unduplicated{$_} = delete $files{$_};
+    $remaining_bytes += (stat $unduplicated{$_}->[0])[7];
+}
+
+
+# keep only the smallest file
+
+my $bytes_saved = 0;
+my $num_files_deleted = 0;
+my $prompt = "Execute:y/n?";
+
+for my $key (keys %files) {
+    my @candidates = map { [ $_ , (stat($_))[7] , is_variant_cover($_ )] }
+    @{$files{$key}};
+
+    @candidates = sort { $a->[2] <=> $b->[2]
+                  || $a->[1] <=> $b->[1] } @candidates;
+    
+    my $keep = shift @candidates;
+
+    say "#######################################################";
+    say "Keep:   ",$keep->[0] , ", ",format_bytes($keep->[1]);
+    for (@candidates) {
+        say "Delete: ",$_->[0] , ", ",format_bytes($_->[1]);
+    }
+    say "#######################################################";
+
+    if ($test) {
+	$num_files_deleted++;
+	for (@candidates) {
+	    $bytes_saved += $_->[1];
+	}
+	next;
+    }
+
+    if ($noprompt) {
+        for (@candidates) {
+            say "deleting [",$_->[0],"]....";
+            if (unlink $_->[0]) {
+                $num_files_deleted++;
+                $bytes_saved += $_->[1];
+            } else {
+                warn "Could not unlink $_->[0]: $!";
+            }
+        }
+	next;
+    }
+
+    my $have_answer = 0;
+    my $answer;
+    while ( not $have_answer ) {
+        $answer = lc $term->readline($prompt);
+        $have_answer = ($answer eq 'y' or $answer eq 'n') ? 1 : 0;
+        last if $have_answer;
+        say "Please answer y or n."
+    }
+    if ($answer eq 'y') {
+        for (@candidates) {
+            say "deleting [",$_->[0],"]....";
+            if (unlink $_->[0]) {
+                $num_files_deleted++;
+                $bytes_saved += $_->[1];
+            } else { 
+                warn "Could not unlink $_->[0]: $!";
+            }
+
+        }
+    }
+    if ($answer eq 'n') {
+        say "Skipping deletion......:";
+    } 
+}
+
+say "[$num_files_deleted] files deleted saving [",format_bytes($bytes_saved),"] of space.";
+say "[",scalar(keys %unduplicated) + scalar(keys %files),"] unique files remaining for [",format_bytes($remaining_bytes),"]."
+
+
+
+
