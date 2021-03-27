@@ -2,7 +2,7 @@
 
 # vim: filetype=perl5
 #
-# needs unrar
+# needs unrar-nonfree
 # needs unzip
 # needs imagemagic "convert" utility
 # needs gs (ghostscript)
@@ -14,13 +14,32 @@ use strict;
 use autodie;
 use File::Basename qw(basename);
 use URI::Encode;
-
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl";
+use Text::Wrapper;
 
 sub make_thumbnail_from_first_page { 
     my ($archive_file, $first_page) = @_;
     my $thumbnail_name = "$archive_file.jpg";
     system("convert", $first_page, "-resize", "400x615", $thumbnail_name);
     unlink($first_page);
+}
+
+my $wrapper = Text::Wrapper->new(columns => 36);
+
+sub make_default_thumbnail {
+    my $archive_file = shift;
+    my $label = $wrapper->wrap($archive_file);
+    system ("convert",
+            "-background", "lightblue",
+            "-fill", "blue",
+            "-font", "FreeSans",
+            "-pointsize","24",
+            "-gravity", "center",
+            "-size", "400x615",
+            "label:$label",
+            "$archive_file.jpg"
+        );
 }
 
 opendir (my $dir_handle,".") || die "can't opendir '.' ";
@@ -32,26 +51,36 @@ my @pdf_files = grep { /\.pdf$/i && -f } readdir($dir_handle);
 
 for (@cbr_files) {
     my $rar_file = $_;
+    next if -f "$rar_file.jpg";
     my $quoted_rar_file = quotemeta($rar_file);
     my $first_page;
-    open(my $lines, "unrar -t $quoted_rar_file |") || die "can't open quoted rar file: $!";
+    my $lines;
+    if (! open($lines, "unrar -t $quoted_rar_file |" )) {
+        make_default_thumbnail($rar_file);
+        next;
+    }
     my @jpgs;
     while (<$lines>) {
  	chomp;
 	next unless /\.jpg$/i;
-	next unless /\d\d\d/;
+	next unless /\d\d/;
 	push @jpgs, $_;
     }
     @jpgs = sort @jpgs;
     $first_page = $jpgs[0];
     $first_page =~ s/^\s+//;
-    system("unrar", $rar_file, $first_page);
+    say "first page:",$first_page;
+    if ( system("unrar", $rar_file, $first_page) ) {
+        make_default_thumbnail($rar_file);
+        next;
+    }
     make_thumbnail_from_first_page($rar_file,$first_page);
     say "rarfile:",$rar_file;
 }
 
 for (@cbz_files) {
     my $zip_file = $_;
+    next if -f "$zip_file.jpg";
     my $quoted_zip_file = quotemeta($zip_file);
     say "zip_file:",$zip_file;
     say "quoted:",$quoted_zip_file;
@@ -75,6 +104,7 @@ for (@cbz_files) {
 }
 
 for (@pdf_files) {
+    next if -f "$_.jpg";
     system("gs",
 	   "-dBATCH",
 	   "-dNOPAUSE",
@@ -126,7 +156,7 @@ say "    <div class=\"directory\">";
 for (@cbr_files, @cbz_files, @pdf_files) {
     my $archive = URI::Encode::uri_encode($_);
     say "        <article class=\"article\">";
-    say "            <a href=\"$archive\"><img src=\"$archive.jpg\" height=\"600\" width=\"415\"></a>";
+    say "            <a href=\"$archive\"><img src=\"$archive.jpg\" height=\"615\" width=\"400\"></a>";
     say "        </article>";
 }
 
