@@ -17,17 +17,22 @@ use URI::Encode;
 use FindBin;
 use lib "$FindBin::Bin/../lib/perl";
 use Text::Wrapper;
-use File::Spec;
+use File::Basename;
+
+my $verbose = 0;
 
 
 sub make_thumbnail_from_first_page { 
     my ($archive_file, $first_page) = @_;
     my $thumbnail_name = "$archive_file.jpg";
-    if (system("convert", $first_page, "-resize", "x615", $thumbnail_name)) {
+    my @suffix_list = qw( jpg gif png );
+    my ($name,$path,$suffix) = fileparse($first_page,@suffix_list);
+    if (system("convert", "$name$suffix", "-resize", "x615", $thumbnail_name)) {
        make_default_thumbnail($archive_file);
        return;
     }
-    unlink($first_page);
+    unlink("$name$suffix") if -f "$name$suffix";
+    unlink($first_page) if -f $first_page;
 }
 
 my $wrapper = Text::Wrapper->new(columns => 34);
@@ -48,19 +53,21 @@ sub make_default_thumbnail {
 }
 
 opendir (my $dir_handle,".") || die "can't opendir '.' ";
-my @cbr_files = grep { /\.cbr$/i && -f } readdir($dir_handle);
+my @cbr_files = sort grep { /\.cbr$/i && -f } readdir($dir_handle);
 rewinddir($dir_handle);
-my @cbz_files = grep { /\.cbz$/i && -f } readdir($dir_handle);
+my @cbz_files = sort grep { /\.cbz$/i && -f } readdir($dir_handle);
 rewinddir($dir_handle);
-my @pdf_files = grep { /\.pdf$/i && -f } readdir($dir_handle);
+my @pdf_files = sort grep { /\.pdf$/i && -f } readdir($dir_handle);
 
 for (@cbr_files) {
     my $rar_file = $_;
+    say "doing file ",$rar_file if $verbose;
+    Encode::_utf8_on($rar_file); #risky but it fixed some broken links
     next if -f "$rar_file.jpg";
     my $quoted_rar_file = quotemeta($rar_file);
     my $first_page;
     my $lines;
-    if (! open($lines, "unrar -t $quoted_rar_file |" )) {
+    if (! open($lines, "unrar lb $quoted_rar_file |" )) {
         make_default_thumbnail($rar_file);
         next;
     }
@@ -68,13 +75,15 @@ for (@cbr_files) {
     while (<$lines>) {
  	chomp;
 	next unless /\.(jpg|gif|png)$/i;
-	next unless /\d\d/;
+	next unless /\d/;
 	push @jpgs, $_;
     }
     @jpgs = sort @jpgs;
     $first_page = $jpgs[0];
-    $first_page =~ s/^\s+//;
-    if ( system("unrar", $rar_file, $first_page) ) {
+    Encode::_utf8_on($first_page); #risky but it fixed some broken links
+    #$first_page =~ s/^\s+//;
+    my $quoted_first_page = quotemeta($first_page);
+    if ( system("unrar e -o+ -y -inul $quoted_rar_file $quoted_first_page") ) {
         make_default_thumbnail($rar_file);
         next;
     }

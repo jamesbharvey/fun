@@ -54,6 +54,7 @@ sub canonicalize {
     $filename =~ s/^\s+//;                #strip leading whitespace
     $filename =~ s/\s+$//;                #strip trailing whitespace
     $filename =~ s/(\b)0+(\d+\b)/$1$2/g;  #strip leading zeroes in numbers
+    $filename =~ s/\s+prog\s+//;            # strip " prog " for 2000AD
     $filename = lc $filename;
     return $filename;
 }
