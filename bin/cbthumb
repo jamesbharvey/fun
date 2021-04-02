@@ -17,15 +17,20 @@ use URI::Encode;
 use FindBin;
 use lib "$FindBin::Bin/../lib/perl";
 use Text::Wrapper;
+use File::Spec;
+
 
 sub make_thumbnail_from_first_page { 
     my ($archive_file, $first_page) = @_;
     my $thumbnail_name = "$archive_file.jpg";
-    system("convert", $first_page, "-resize", "400x615", $thumbnail_name);
+    if (system("convert", $first_page, "-resize", "x615", $thumbnail_name)) {
+       make_default_thumbnail($archive_file);
+       return;
+    }
     unlink($first_page);
 }
 
-my $wrapper = Text::Wrapper->new(columns => 36);
+my $wrapper = Text::Wrapper->new(columns => 34);
 
 sub make_default_thumbnail {
     my $archive_file = shift;
@@ -37,7 +42,7 @@ sub make_default_thumbnail {
             "-pointsize","24",
             "-gravity", "center",
             "-size", "400x615",
-            "label:$label",
+            "caption:$archive_file",
             "$archive_file.jpg"
         );
 }
@@ -62,35 +67,35 @@ for (@cbr_files) {
     my @jpgs;
     while (<$lines>) {
  	chomp;
-	next unless /\.jpg$/i;
+	next unless /\.(jpg|gif|png)$/i;
 	next unless /\d\d/;
 	push @jpgs, $_;
     }
     @jpgs = sort @jpgs;
     $first_page = $jpgs[0];
     $first_page =~ s/^\s+//;
-    say "first page:",$first_page;
     if ( system("unrar", $rar_file, $first_page) ) {
         make_default_thumbnail($rar_file);
         next;
     }
     make_thumbnail_from_first_page($rar_file,$first_page);
-    say "rarfile:",$rar_file;
 }
 
 for (@cbz_files) {
     my $zip_file = $_;
     next if -f "$zip_file.jpg";
     my $quoted_zip_file = quotemeta($zip_file);
-    say "zip_file:",$zip_file;
-    say "quoted:",$quoted_zip_file;
     my $first_page;
-    open(my $lines, "unzip -l $quoted_zip_file |") || die "can't open quoted zip file: $!";
+    my $lines;
+    if (! open($lines, "unzip -l $quoted_zip_file |")) {
+       make_default_thumbnail($zip_file);
+        next;
+    }
     my @jpgs;
     while (<$lines>) {
 	my $path;
 	chomp;
-	next unless /\.jpg$/i;
+	next unless /\.(jpg|gif|png)$/i;
 	next unless /\s+\d+\s+\d{4}\-\d\d\-\d\d\s+\d\d\:\d\d\s+(\S+.*)$/;
 	$path = $1;
 	push @jpgs, $path;
@@ -98,14 +103,16 @@ for (@cbz_files) {
     @jpgs = sort @jpgs;
     $first_page = $jpgs[0];
     $first_page =~ s/^\s+//;
-    say "first page:",$first_page;
-    system("unzip","-u", $zip_file, $first_page);
+    if (system("unzip","-u", $zip_file, $first_page)) {
+        make_default_thumbnail($zip_file);
+        next;
+    }
     make_thumbnail_from_first_page($zip_file,$first_page);
 }
 
 for (@pdf_files) {
     next if -f "$_.jpg";
-    system("gs",
+    if ( system("gs",
 	   "-dBATCH",
 	   "-dNOPAUSE",
 	   "-dSAFER",
@@ -116,7 +123,10 @@ for (@pdf_files) {
 	   "-r400x615",
 	   "-sOutputFile=$_.jpg",
 	   $_
-	);
+         )) {
+        make_default_thumbnail($_);
+        next;
+    }
 }
 
 opendir ($dir_handle,".") || die "can't opendir '.' ";
@@ -153,8 +163,10 @@ say "</head>";
 say "<body>";
 say "    <div class=\"directory\">";
 
-for (@cbr_files, @cbz_files, @pdf_files) {
-    my $archive = URI::Encode::uri_encode($_);
+my @all_files = sort ( @cbr_files, @cbz_files, @pdf_files) ;
+for (@all_files) {
+    Encode::_utf8_on($_); #risky but it fixed some broken links
+    my $archive = URI::Encode::uri_encode($_, { encode_reserved => 1 } );
     say "        <article class=\"article\">";
     say "            <a href=\"$archive\"><img src=\"$archive.jpg\" height=\"615\" width=\"400\"></a>";
     say "        </article>";
