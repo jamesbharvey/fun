@@ -18,6 +18,8 @@ use FindBin;
 use lib "$FindBin::Bin/../lib/perl";
 use Text::Wrapper;
 use File::Basename;
+use Archive::Zip qw(:ERROR_CODES);
+use Image::Magick;
 
 my $verbose = 0;
 
@@ -27,10 +29,30 @@ sub make_thumbnail_from_first_page {
     my $thumbnail_name = "$archive_file.jpg";
     my @suffix_list = qw( jpg gif png );
     my ($name,$path,$suffix) = fileparse($first_page,@suffix_list);
-    if (system("convert", "$name$suffix", "-resize", "x615", $thumbnail_name)) {
-       make_default_thumbnail($archive_file);
-       return;
+    my $image = Image::Magick->new;
+    my $error = $image->Read("$name$suffix");
+    if ($error) {
+        make_default_thumbnail($archive_file);
+        warn "$error, archive, first_page [$archive_file][$first_page]";
+        return;
     }
+    $error = $image->Resize(geometry =>'x615');
+    if ($error) {
+        make_default_thumbnail($archive_file);
+        warn "$error, archive, first_page [$archive_file][$first_page]";
+        return;
+    }
+    $error = $image->Write($thumbnail_name);
+    if ($error) {
+        make_default_thumbnail($archive_file);
+        warn "$error, archive, first_page [$archive_file][$first_page]";
+        return;
+    }
+    
+    #if (system("convert", "$name$suffix", "-resize", "x615", $thumbnail_name)) {
+    #   make_default_thumbnail($archive_file);
+    #   return;
+    #}
     unlink("$name$suffix") if -f "$name$suffix";
     unlink($first_page) if -f $first_page;
 }
@@ -92,7 +114,12 @@ for (@cbr_files) {
 
 for (@cbz_files) {
     my $zip_file = $_;
+    say "doing file ",$zip_file if $verbose;
     next if -f "$zip_file.jpg";
+    my $zip = Archive::Zip->new();
+    my $status = $zip->read($zip_file);
+    die "Read of $zip_file failed\n" if $status != AZ_OK;
+
     my $quoted_zip_file = quotemeta($zip_file);
     my $first_page;
     my $lines;
@@ -106,15 +133,19 @@ for (@cbz_files) {
 	chomp;
 	next unless /\.(jpg|gif|png)$/i;
 	next unless /\s+\d+\s+\d{4}\-\d\d\-\d\d\s+\d\d\:\d\d\s+(\S+.*)$/;
+        say "path is [",$path,"]" if $verbose;
 	$path = $1;
 	push @jpgs, $path;
     }
     @jpgs = sort @jpgs;
     $first_page = $jpgs[0];
-    $first_page =~ s/^\s+//;
-    if (system("unzip","-u", $zip_file, $first_page)) {
-        make_default_thumbnail($zip_file);
-        next;
+    my $quoted_first_page = quotemeta($first_page);
+    Encode::_utf8_on($first_page); #risky but it fixed some broken links        
+    #$first_page =~ s/^\s+//;
+    $status = $zip->extractMemberWithoutPaths($first_page);
+    if ($status != AZ_OK && ! -f $first_page) {
+         make_default_thumbnail($zip_file);
+         next;
     }
     make_thumbnail_from_first_page($zip_file,$first_page);
 }
