@@ -201,8 +201,12 @@ say "         }";
 say "    </style>";
 say "</head>";
 say "<body>";
+say "  <div class=\"directory\">";
+say "    <article class=\"article\"><a href=\"..\"><img src=\"https://www.pngkey.com/png/detail/602-6025868_up-light-blue-up-arrow.png\" height=\"52\" width=\"72\"></a>";
+say "    </article>";
+say "  </div>";
+say "  <br>";
 say "    <div class=\"directory\">";
-
 my @all_files = sort ( @cbr_files, @cbz_files, @pdf_files) ;
 for (@all_files) {
     Encode::_utf8_on($_); #risky but it fixed some broken links
