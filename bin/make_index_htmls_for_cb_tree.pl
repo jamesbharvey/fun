@@ -14,9 +14,8 @@ my @directories = `find . -type d`;
 
 for my $dir (@directories) {
     chomp $dir;
-    next if -f "$dir/index.html";
-    next if $dir =~ /cant\_unrar/;
     say "doing dir:$dir";
+    next if -f "$dir/index.html";
     opendir(my $handle, $dir);
     my @items = readdir($handle);
     @items = grep { /\.(cbr|cbz|pdf)$/i } @items; 

@@ -21,7 +21,7 @@ use File::Basename;
 use Archive::Zip qw(:ERROR_CODES);
 use Image::Magick;
 
-my $verbose = 0;
+my $verbose = 1;
 
 
 sub make_thumbnail_from_first_page { 
