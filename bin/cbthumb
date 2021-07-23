@@ -3,10 +3,17 @@
 # vim: filetype=perl5
 #
 # needs unrar-nonfree
-# needs unzip
+# needs unzip 
 # needs imagemagic "convert" utility
 # needs gs (ghostscript)
 #
+#  sudo apt-get install \
+#               ghostscript \
+#               imagemagick \
+#               unzip \
+#               unrar-nonfree \
+#               liburi-encode-perl \
+#               libimage-magick-perl \
 
 use feature qw(say);
 use warnings;
