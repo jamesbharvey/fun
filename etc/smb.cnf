@@ -1,0 +1,22 @@
+# /etc/samba/smb.cnf
+[global]
+netbios name = Pi
+server string = The Pi File Center
+workgroup = WORKGROUP
+
+[HOMEPI]
+path = /home/pi
+comment = No comment
+writeable=Yes
+create mask=0777
+directory mask=0777
+public=no
+
+
+[BUFFALO2TB]
+path = /media/pi/buffalo2tb
+comment = No comment
+writeable=Yes
+create mask=0777
+directory mask=0777
+public=no
