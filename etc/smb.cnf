@@ -1,4 +1,4 @@
-# /etc/samba/smb.cnf
+# /etc/samba/smb.conf
 [global]
 netbios name = Pi
 server string = The Pi File Center
@@ -15,6 +15,14 @@ public=no
 
 [BUFFALO2TB]
 path = /media/pi/buffalo2tb
+comment = No comment
+writeable=Yes
+create mask=0777
+directory mask=0777
+public=no
+
+[SEAGATE4TB]
+path = /media/pi/seagate4tb
 comment = No comment
 writeable=Yes
 create mask=0777
