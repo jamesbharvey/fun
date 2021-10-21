@@ -189,7 +189,6 @@ copy "$asset_dir/wikimedia_commons_up_arrow.svg", "up_arrow.svg";
 
 if (@dirs > 0) {
     copy "$asset_dir/wikimedia_commons_right_arrow.svg", "right_arrow.svg";
-
 }
 
 open my $index_file, ">", "index.html";
@@ -209,7 +208,9 @@ say "         .otherdirectories {";
 say "           display: list-item;";
 say "         }";
 say "         .otherdirectories a {";
-say "           vertical-align: middle;";
+say "           display: flex;";
+say "           align-items: center;";
+say "           font-size: x-large;";
 say "         }";
 say "         ";
 say "         /* Single column display for phones */";
