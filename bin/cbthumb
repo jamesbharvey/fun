@@ -140,7 +140,6 @@ for (@cbz_files) {
 	chomp;
 	next unless /\.(jpg|gif|png)$/i;
 	next unless /\s+\d+\s+\d{4}\-\d\d\-\d\d\s+\d\d\:\d\d\s+(\S+.*)$/;
-        say "path is [",$path,"]" if $verbose;
 	$path = $1;
 	push @jpgs, $path;
     }
@@ -172,7 +171,6 @@ for (@pdf_files) {
 	   $_
          )) {
         make_default_thumbnail($_);
-        next;
     }
 }
 
@@ -182,6 +180,8 @@ rewinddir($dir_handle);
 @cbz_files = grep { /\.cbz$/i && -f } readdir($dir_handle);
 rewinddir($dir_handle);
 @pdf_files = grep { /\.pdf$/i && -f } readdir($dir_handle);
+rewinddir($dir_handle);
+my @dirs = grep { -d && $_ ne '.' && $_ ne '..' } readdir($dir_handle);
 
 
 open my $index_file, ">", "index.html";
@@ -198,6 +198,10 @@ say "           grid-gap: 32px;";
 say "           grid-auto-flow: dense;";
 say "         }";
 say "         ";
+say "         .otherdirectories {";
+say "           display: list-item;";
+say "         }";
+say "         ";
 say "         /* Single column display for phones */";
 say "        \@media (max-width: 459px) {";
 say "           .directory {";
@@ -208,9 +212,13 @@ say "         }";
 say "    </style>";
 say "</head>";
 say "<body>";
-say "  <div class=\"directory\">";
+say "  <div class=\"otherdirectories\">";
 say "    <article class=\"article\"><a href=\"..\"><img src=\"https://www.pngkey.com/png/detail/602-6025868_up-light-blue-up-arrow.png\" height=\"52\" width=\"72\"></a>";
 say "    </article>";
+for (sort @dirs) {
+say "    <article class=\"article\"><a href=\"$_\"><img src=\"https://www.pngkey.com/png/detail/192-1929131_right-arrow-clipart-left-arrow-right-arrow.png\" height=\"52\" width=\"72\">$_</a>";
+say "    </article>"
+}
 say "  </div>";
 say "  <br>";
 say "    <div class=\"directory\">";

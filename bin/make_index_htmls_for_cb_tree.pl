@@ -10,12 +10,20 @@ use File::pushd;
 
 my @directories = `find . -type d`;
 @directories = grep { ! /^\.$/ } @directories;
+#@directories = grep { /2021/ } @directories;
 @directories = sort @directories;
+
+opendir(my $handle,".");
+my @items = readdir($handle);
+@items = grep { /\.(cbr|cbz|pdf)$/i } @items; 
+
+
 
 for my $dir (@directories) {
     chomp $dir;
     say "doing dir:$dir";
-    next if -f "$dir/index.html";
+
+#    next if -f "$dir/index.html";
     opendir(my $handle, $dir);
     my @items = readdir($handle);
     @items = grep { /\.(cbr|cbz|pdf)$/i } @items; 
