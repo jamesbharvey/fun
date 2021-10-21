@@ -27,6 +27,7 @@ use Text::Wrapper;
 use File::Basename;
 use Archive::Zip qw(:ERROR_CODES);
 use Image::Magick;
+use File::Copy;
 
 my $verbose = 1;
 
@@ -183,6 +184,13 @@ rewinddir($dir_handle);
 rewinddir($dir_handle);
 my @dirs = grep { -d && $_ ne '.' && $_ ne '..' } readdir($dir_handle);
 
+my $asset_dir = "$FindBin::Bin/../assets";
+copy "$asset_dir/wikimedia_commons_up_arrow.svg", "up_arrow.svg";
+
+if (@dirs > 0) {
+    copy "$asset_dir/wikimedia_commons_right_arrow.svg", "right_arrow.svg";
+
+}
 
 open my $index_file, ">", "index.html";
 
@@ -197,9 +205,11 @@ say "           grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));";
 say "           grid-gap: 32px;";
 say "           grid-auto-flow: dense;";
 say "         }";
-say "         ";
 say "         .otherdirectories {";
 say "           display: list-item;";
+say "         }";
+say "         .otherdirectories a {";
+say "           vertical-align: middle;";
 say "         }";
 say "         ";
 say "         /* Single column display for phones */";
@@ -213,13 +223,18 @@ say "    </style>";
 say "</head>";
 say "<body>";
 say "  <div class=\"otherdirectories\">";
-say "    <article class=\"article\"><a href=\"..\"><img src=\"https://www.pngkey.com/png/detail/602-6025868_up-light-blue-up-arrow.png\" height=\"52\" width=\"72\"></a>";
+say "    <article class=\"article\"><a href=\"..\"><img src=\"up_arrow.svg\" height=\"52\" width=\"72\"></a>";
 say "    </article>";
-for (sort @dirs) {
-say "    <article class=\"article\"><a href=\"$_\"><img src=\"https://www.pngkey.com/png/detail/192-1929131_right-arrow-clipart-left-arrow-right-arrow.png\" height=\"52\" width=\"72\">$_</a>";
-say "    </article>"
-}
 say "  </div>";
+if (@dirs > 0) {
+say "   <br>";
+say "  <div class=\"otherdirectories\">";
+    for (sort @dirs) {
+say "    <article class=\"article\"><a href=\"$_\"><img src=\"right_arrow.svg\" height=\"52\" width=\"72\">$_</a>";
+say "    </article>"
+    }
+say "</div>"
+}
 say "  <br>";
 say "    <div class=\"directory\">";
 my @all_files = sort ( @cbr_files, @cbz_files, @pdf_files) ;
