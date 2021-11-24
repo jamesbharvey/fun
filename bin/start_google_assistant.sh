@@ -17,3 +17,6 @@ google-oauthlib-tool --client-secrets ~/googleassistant/credentials.json \
 		     --scope https://www.googleapis.com/auth/assistant-sdk-prototype \
 		     --scope https://www.googleapis.com/auth/gcm \
 		     --save --headless
+
+
+#https://pimylifeup.com/raspberry-pi-google-assistant/
