@@ -103,7 +103,8 @@ for (@cbr_files) {
     }
     my @jpgs;
     while (<$lines>) {
- 	chomp;
+ 	chomp; 
+     say $_;
 	next unless /\.(jpg|gif|png)$/i;
 	next unless /\d/;
 	push @jpgs, $_;
@@ -159,15 +160,18 @@ for (@cbz_files) {
 
 for (@pdf_files) {
     next if -f "$_.jpg";
+    say "doing file [$_]...";
     if ( system("gs",
+	   "-q",
 	   "-dBATCH",
 	   "-dNOPAUSE",
 	   "-dSAFER",
 	   "-dFirstPage=1",
 	   "-dLastPage=1",
 	   "-sDEVICE=jpeg",
-	   "-dJPEGQ=30",
-	   "-r400x615",
+           "-dJPEGQ=30",
+#	   "-r475x615",
+#           "-r400x615",
 	   "-sOutputFile=$_.jpg",
 	   $_
          )) {
