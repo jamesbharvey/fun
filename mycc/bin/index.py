@@ -5,6 +5,7 @@ import zipfile
 import glob
 import subprocess
 import xml.etree.ElementTree as ET
+import pymongo
 
 def xmlTreeToDictionary(dict,xmlpath):
     xmlpath = os.path.basename(xmlpath)
@@ -18,15 +19,18 @@ def xmlTreeToDictionary(dict,xmlpath):
 
 def setNonXmlFieldsForDictToIndex(dictToIndex,filepath):
     dictToIndex['FileName'] = os.path.basename(filepath)
-    dictToIndex['OsFilePath'] = filepath
+    dictToIndex['RelativeFilePath'] = filepath
+    dictToIndex['AbsoluteFilePath'] = os.path.abspath(filepath)
     return dictToIndex
 
 def getDictToIndexFromZipFile(zipfilename):
     dictToIndex = {}
-    with zipfile.ZipFile(filename, "r") as zfile:
+    with zipfile.ZipFile(zipfilename, "r") as zfile:
         xmlfilenames = list(filter(lambda x: x.lower().endswith('.xml'), zfile.namelist()))
         if len(xmlfilenames) != 1 and len(xmlfilenames) != 0:
             warnings.warn("multiple xml files in .cbr[" + zipfilename + "]....")
+            for filename in xmlfilenames:
+                warnings.warn("xml file name is [" + filename + "]", stacklevel=1)
         for xmlfilename in xmlfilenames:
             xmlpath = zfile.extract(xmlfilename)
             dictToIndex = xmlTreeToDictionary(dictToIndex, xmlpath)
@@ -61,14 +65,26 @@ def getDictToIndexFromRarFile(rarfilename):
         dict = xmlTreeToDictionary(dict,xmlfilename)
     return dict
 
+
+mongoClient = pymongo.MongoClient()
+mongoDbName = mongoClient['mycc']
+mongoCollection = mongoDbName['comics']
+
+def insertComic(dictToIndex):
+    mongoCollection.insert_one(dictToIndex)
+
+
+
 os.chdir('/Users/james.harvey/Desktop/2021.04.21 Weekly Pack')
 
 for filename in glob.glob('*/*.[Cc][Bb][Zz]'):
     print(filename)
     dictToIndex = getDictToIndexFromZipFile(filename)
     print(dictToIndex)
+    insertComic(dictToIndex)
 
 for filename in glob.glob('*/*.[Cc][Bb][Rr]'):
     print(filename)
     dictToIndex = getDictToIndexFromRarFile(filename)
     print(dictToIndex)
+    insertComic(dictToIndex)
