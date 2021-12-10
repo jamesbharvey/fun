@@ -6,6 +6,7 @@ import glob
 import subprocess
 import xml.etree.ElementTree as ET
 import pymongo
+from pathlib import Path
 
 def xmlTreeToDictionary(dict,xmlpath):
     xmlpath = os.path.basename(xmlpath)
@@ -70,12 +71,27 @@ mongoClient = pymongo.MongoClient()
 mongoDbName = mongoClient['mycc']
 mongoCollection = mongoDbName['comics']
 
+mongoCollection.create_index([("FileName", "text"),
+                              ("Series", "text"),
+                              ("Title", "text"),
+                              ("Summary", "text"),
+                              ("Genre", "text"),
+                              ("Writer", "text"),
+                              ("Penciller", "text"),
+                              ("Year", "text"),
+                              ("Number", "text")])
+
 def insertComic(dictToIndex):
     mongoCollection.insert_one(dictToIndex)
 
 
 
-os.chdir('/Users/james.harvey/Desktop/2021.04.21 Weekly Pack')
+directory = '/Users/james.harvey/Desktop/2021.04.21 Weekly Pack'
+os.chdir(directory)
+
+if os.path.exists("mycc.indexed.txt"):
+    warnings.warn("Directory [" + directory + "]already indexed. To re-index it remove the file mycc.indexed.txt from the directory and run again.")
+    exit()
 
 for filename in glob.glob('*/*.[Cc][Bb][Zz]'):
     print(filename)
@@ -88,3 +104,5 @@ for filename in glob.glob('*/*.[Cc][Bb][Rr]'):
     dictToIndex = getDictToIndexFromRarFile(filename)
     print(dictToIndex)
     insertComic(dictToIndex)
+
+Path('mycc.indexed.txt').touch()

@@ -10,17 +10,24 @@ mongoCollection = mongoDbName['comics']
 
 def index(request):
     template = loader.get_template('search/index.html')
-    cursor = mongoCollection.find()
     comicList = []
-    for comic in cursor:
-        rootRelativePath = str(comic['AbsoluteFilePath']).replace("/Users/james.harvey/Desktop/", "")
-        comic['url'] = "http://127.0.0.1:8080/" + urllib.parse.quote(rootRelativePath)
-        comicList.append(comic)
+    context = {'keywords': ''}
+    getParams = request.GET.dict()
+    if 'keywords' in getParams:
+        context['keywords'] = getParams['keywords']
+        query = {"$text": {"$search": getParams['keywords']}}
+        cursor = mongoCollection.find(query)
+        absolutePathRoots = [["/Users/james.harvey/Desktop/", "http://127.0.0.1:8080/"]]
+        for comic in cursor:
+            absoluteFilePath = str(comic['AbsoluteFilePath'])
+            for pathUrlTuple in absolutePathRoots:
+                rootRelativePath = absoluteFilePath.lstrip(pathUrlTuple[0])
+            comic['url'] = pathUrlTuple[1] + urllib.parse.quote(rootRelativePath)
+            comicList.append(comic)
     numComics = len(comicList)
-    context = {
-        'comics': comicList,
-        'numComics': numComics
-    }
+
+    context['comics'] = comicList
+    context['numComics'] = numComics
     return HttpResponse(template.render(context, request))
 
 # Create your views here.
