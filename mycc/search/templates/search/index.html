@@ -2,6 +2,12 @@
 <head>
     <title>My Comic Collection Search</title>
     <style>
+        html *
+        {
+           font-size: 1em !important;
+           color: #000 !important;
+           font-family: Arial !important;
+        }
          .directory {
            display: grid;
            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -28,7 +34,7 @@
 </head>
 <body>
  <form>
-  <label for="fname">Keywords</label><br>
+  <label for="fname">Keywords:</label>
   <input type="text" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
 </form>
 
