@@ -28,6 +28,7 @@ use File::Basename;
 use Archive::Zip qw(:ERROR_CODES);
 use Image::Magick;
 use File::Copy;
+use Cwd 'abs_path';
 
 my $verbose = 1;
 
@@ -91,7 +92,8 @@ my @pdf_files = sort grep { /\.pdf$/i && -f } readdir($dir_handle);
 
 for (@cbr_files) {
     my $rar_file = $_;
-    say "doing file ",$rar_file if $verbose;
+    my $abs_path = abs_path($rar_file);
+    say "doing file ",$abs_path if $verbose;
     Encode::_utf8_on($rar_file); #risky but it fixed some broken links
     next if -f "$rar_file.jpg";
     my $quoted_rar_file = quotemeta($rar_file);
@@ -104,7 +106,6 @@ for (@cbr_files) {
     my @jpgs;
     while (<$lines>) {
  	chomp; 
-     say $_;
 	next unless /\.(jpg|gif|png)$/i;
 	next unless /\d/;
 	push @jpgs, $_;
@@ -123,7 +124,8 @@ for (@cbr_files) {
 
 for (@cbz_files) {
     my $zip_file = $_;
-    say "doing file ",$zip_file if $verbose;
+    my $abs_path = abs_path($zip_file);
+    say "doing file ",$abs_path if $verbose;
     next if -f "$zip_file.jpg";
     my $zip = Archive::Zip->new();
     my $status = $zip->read($zip_file);
@@ -160,7 +162,8 @@ for (@cbz_files) {
 
 for (@pdf_files) {
     next if -f "$_.jpg";
-    say "doing file [$_]...";
+    my $abs_path = abs_path($_);
+    say "doing file [$abs_path]...";
     if ( system("gs",
 	   "-q",
 	   "-dBATCH",
@@ -171,7 +174,7 @@ for (@pdf_files) {
 	   "-sDEVICE=jpeg",
            "-dJPEGQ=30",
 #	   "-r475x615",
-#           "-r400x615",
+           "-r400x615",
 	   "-sOutputFile=$_.jpg",
 	   $_
          )) {
