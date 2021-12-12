@@ -1,0 +1,59 @@
+<html>
+<head>
+    <title>My Comic Collection Search</title>
+    <style>
+        html *
+        {
+           font-size: 1em !important;
+           color: #000 !important;
+           font-family: Arial !important;
+        }
+         .directory {
+           display: grid;
+           grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+           grid-gap: 32px;
+           grid-auto-flow: dense;
+         }
+         .otherdirectories {
+           display: list-item;
+         }
+         .otherdirectories a {
+           display: flex;
+           align-items: center;
+           font-size: x-large;
+         }
+
+         /* Single column display for phones */
+        \@media (max-width: 459px) {
+           .directory {
+             display: flex;
+             flex-direction: column;
+           }
+         }
+    </style>
+</head>
+<body>
+ <form>
+  <label for="fname">Keywords:</label>
+  <input type="text" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
+</form>
+
+{% if numComics > 0 %}
+Search resulted in {{ numComics }}
+{% if numComics > 1 %}
+    comics.
+    {% else %}
+    comic.
+    {% endif %}<br><br>
+{% endif %}
+<div class="directory">
+{% for comic in comics %}
+<div class="article">
+    <a href="{{ comic.url }}">
+        <img src="{{ comic.url}}.jpg">
+    </a>
+</div>
+{% endfor %}
+</div>
+</body>
+</html>

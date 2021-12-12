@@ -1,0 +1,21 @@
+Count, Field
+  62 Web
+  62 Summary
+  62 Series
+  62 ScanInformation
+  62 Publisher
+  62 PageCount
+  62 Notes
+  62 LanguageISO
+  62 Genre
+  61 Number
+  12 Volume
+   5 Title
+   5 Imprint
+   3 Year
+   3 Writer
+   3 Penciller
+   3 Pages
+   3 Month
+   2 CoverArtist
+   1 Day
