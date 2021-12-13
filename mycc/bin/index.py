@@ -84,25 +84,38 @@ mongoCollection.create_index([("FileName", "text"),
 def insertComic(dictToIndex):
     mongoCollection.insert_one(dictToIndex)
 
+def indexDirectory(directory):
+    olddir = os.getcwd()
+    os.chdir(directory)
+    if os.path.exists("mycc.indexed.txt"):
+        warnings.warn(
+            "Directory [" + directory + "]already indexed. To re-index it remove the file mycc.indexed.txt from the directory and run again.")
+        return
 
+    for filename in glob.glob('*.[Cc][Bb][Zz]'):
+        print(filename)
+        dictToIndex = getDictToIndexFromZipFile(filename)
+        print(dictToIndex)
+        insertComic(dictToIndex)
 
-directory = '/Users/james.harvey/Desktop/2021.04.21 Weekly Pack'
-os.chdir(directory)
+    for filename in glob.glob('*.[Cc][Bb][Rr]'):
+        print(filename)
+        dictToIndex = getDictToIndexFromRarFile(filename)
+        print(dictToIndex)
+        insertComic(dictToIndex)
 
-if os.path.exists("mycc.indexed.txt"):
-    warnings.warn("Directory [" + directory + "]already indexed. To re-index it remove the file mycc.indexed.txt from the directory and run again.")
-    exit()
+    for item in glob.glob('*'):
+        if os.path.isdir(item):
+            indexDirectory(item)
 
-for filename in glob.glob('*/*.[Cc][Bb][Zz]'):
-    print(filename)
-    dictToIndex = getDictToIndexFromZipFile(filename)
-    print(dictToIndex)
-    insertComic(dictToIndex)
+    Path('mycc.indexed.txt').touch()
+    os.chdir(olddir)
 
-for filename in glob.glob('*/*.[Cc][Bb][Rr]'):
-    print(filename)
-    dictToIndex = getDictToIndexFromRarFile(filename)
-    print(dictToIndex)
-    insertComic(dictToIndex)
+directories = [
+    '/Users/james.harvey/Desktop/2021.04.21 Weekly Pack',
+    '/Users/james.harvey/Desktop/House of M TPBs (2006-2016)',
+    '/Users/james.harvey/Desktop/2021.09.29 Weekly Pack',
+    ]
 
-Path('mycc.indexed.txt').touch()
+for directory in directories:
+    indexDirectory(directory)

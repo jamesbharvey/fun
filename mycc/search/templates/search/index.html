@@ -40,12 +40,13 @@
 
 {% if numComics > 0 %}
 Search resulted in {{ numComics }}
-{% if numComics > 1 %}
+    {% if numComics > 1 %}
     comics.
     {% else %}
     comic.
     {% endif %}<br><br>
 {% endif %}
+
 <div class="directory">
 {% for comic in comics %}
 <div class="article">
