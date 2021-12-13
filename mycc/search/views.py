@@ -3,31 +3,33 @@ from django.shortcuts import loader
 import pymongo
 import urllib.parse
 
-mongoClient = pymongo.MongoClient()
-mongoDbName = mongoClient['mycc']
-mongoCollection = mongoDbName['comics']
+from pymongo import MongoClient
+
+mongo_client: MongoClient = pymongo.MongoClient()
+mongo_db_name = mongo_client['mycc']
+mongo_collection = mongo_db_name['comics']
 
 
 def index(request):
     template = loader.get_template('search/index.html')
-    comicList = []
+    comic_list = []
     context = {'keywords': ''}
-    getParams = request.GET.dict()
-    if 'keywords' in getParams:
-        context['keywords'] = getParams['keywords']
-        query = {"$text": {"$search": getParams['keywords']}}
-        cursor = mongoCollection.find(query)
-        absolutePathRoots = [["/Users/james.harvey/Desktop/", "http://127.0.0.1:8080/"]]
+    get_params = request.GET.dict()
+    if 'keywords' in get_params:
+        context['keywords'] = get_params['keywords']
+        query = {"$text": {"$search": get_params['keywords']}}
+        cursor = mongo_collection.find(query)
+        absolute_path_roots = [["/Users/james.harvey/Desktop/", "http://127.0.0.1:8080/"]]
         for comic in cursor:
-            absoluteFilePath = str(comic['AbsoluteFilePath'])
-            for pathUrlTuple in absolutePathRoots:
-                rootRelativePath = absoluteFilePath.lstrip(pathUrlTuple[0])
-            comic['url'] = pathUrlTuple[1] + urllib.parse.quote(rootRelativePath)
-            comicList.append(comic)
-    numComics = len(comicList)
+            absolute_file_path = str(comic['AbsoluteFilePath'])
+            for path_url_tuple in absolute_path_roots:
+                root_relative_path = absolute_file_path.lstrip(path_url_tuple[0])
+            comic['url'] = path_url_tuple[1] + urllib.parse.quote(root_relative_path)
+            comic_list.append(comic)
+    num_comics = len(comic_list)
 
-    context['comics'] = comicList
-    context['numComics'] = numComics
+    context['comics'] = comic_list
+    context['num_comics'] = num_comics
     return HttpResponse(template.render(context, request))
 
 # Create your views here.

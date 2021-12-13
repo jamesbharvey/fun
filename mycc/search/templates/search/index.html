@@ -38,9 +38,9 @@
   <input type="text" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
 </form>
 
-{% if numComics > 0 %}
-Search resulted in {{ numComics }}
-    {% if numComics > 1 %}
+{% if num_comics > 0 %}
+Search resulted in {{ num_comics }}
+    {% if num_comics > 1 %}
     comics.
     {% else %}
     comic.
