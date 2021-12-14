@@ -9,7 +9,7 @@ import pymongo
 from pathlib import Path
 
 
-class FileParser:
+class ComicFileHandler:
     def __init__(self,archive_path):
         self.archive_path = archive_path
         self.to_index = {}
@@ -45,7 +45,6 @@ class FileParser:
                     warnings.warn("xml file name is [" + filename + "]", stacklevel=1)
             for xml_file_name in xml_file_names:
                 xml_path = zfile.extract(xml_file_name)
-                print("parsing xmlfile from zip file" + xml_file_name)
                 self.parse_and_set_xml_fields(xml_path)
         self.set_non_xml_fields()
 
@@ -54,7 +53,7 @@ class FileParser:
         completed_process = subprocess.run(["unrar", "lb", self.archive_path], capture_output=True)
         if completed_process.returncode != 0:
             warnings.warn("couldn't list contents of rarfile[" + self.archive_path + "]")
-            return out_dict
+            return
         strings = []
         for bytes in completed_process.stdout.splitlines():
             strings.append(str(bytes).rstrip('/n').lstrip("b'").rstrip("'"))
@@ -108,11 +107,14 @@ def index_directory(directory):
         return
 
     for file_name in glob.glob('*.[Cc][Bb][ZzRr]'):
-        print(file_name)
-        fp = FileParser(file_name)
+        print(os.path.abspath(file_name))
+        fp = ComicFileHandler(file_name)
         fp.parse_file()
         insert_comic(fp.to_index)
 
+    completed_process = subprocess.run(["/Users/james.harvey/fun/bin/cbthumb"], capture_output=True)
+    if completed_process.returncode != 0:
+        warnings.warn("failed to run cbthumb in directory[" + os.getcwd() + "]")
     for item in glob.glob('*'):
         if os.path.isdir(item):
             index_directory(item)
