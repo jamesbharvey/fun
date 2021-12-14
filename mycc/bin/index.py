@@ -96,6 +96,7 @@ mongoCollection.create_index([("FileName", "text"),
 def insert_comic(dict_to_index):
     mongoCollection.insert_one(dict_to_index)
 
+
 def index_directory(directory):
     old_dir = os.getcwd()
     os.chdir(directory)
@@ -118,7 +119,6 @@ def index_directory(directory):
 
     Path('mycc.indexed').touch()
     os.chdir(old_dir)
-
 
 
 directories = [
