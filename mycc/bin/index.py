@@ -120,6 +120,7 @@ def index_directory(directory):
     os.chdir(old_dir)
 
 
+
 directories = [
     '/Users/james.harvey/Desktop/2021.04.21 Weekly Pack',
     '/Users/james.harvey/Desktop/House of M TPBs (2006-2016)',
