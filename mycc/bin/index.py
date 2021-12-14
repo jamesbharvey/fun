@@ -36,11 +36,21 @@ class ComicFileHandler:
         if archive_path_str.lower().endswith('.cbr'):
             self.parse_rar_file()
 
+    def set_format(self, page_count):
+        # yes this is crude and will not work for Euro Comics, etc.
+        if page_count >= 80:
+            self.to_index['Format'] = 'Trade'
+        else:
+            self.to_index['Format'] = 'Floppy'
+
+
     def parse_zip_file(self):
         with zipfile.ZipFile(self.archive_path, "r") as zfile:
+            page_count = len(list(filter(lambda x: x.lower().endswith('.jpg'), zfile.namelist())))
+            self.set_format(page_count)
             xml_file_names = list(filter(lambda x: x.lower().endswith('.xml'), zfile.namelist()))
             if len(xml_file_names) != 1 and len(xml_file_names) != 0:
-                warnings.warn("multiple xml files in .cbr[" + zip_file_name + "]....")
+                warnings.warn("multiple xml files in .cbr[" + self.archive_path + "]....")
                 for filename in xml_file_names:
                     warnings.warn("xml file name is [" + filename + "]", stacklevel=1)
             for xml_file_name in xml_file_names:
@@ -57,6 +67,8 @@ class ComicFileHandler:
         strings = []
         for bytes in completed_process.stdout.splitlines():
             strings.append(str(bytes).rstrip('/n').lstrip("b'").rstrip("'"))
+        page_count = len(list(filter(lambda x: x.lower().endswith('.jpg'), strings)))
+        self.set_format(page_count)
         xml_file_names = list(filter(lambda x: x.lower().endswith('.xml'), strings))
         if len(xml_file_names) != 1 and len(xml_file_names) != 0:
             warnings.warn("multiple xml files in .cbr[" + self.archive_path + "]....")
@@ -112,7 +124,8 @@ def index_directory(directory):
         fp.parse_file()
         insert_comic(fp.to_index)
 
-    completed_process = subprocess.run(["/Users/james.harvey/fun/bin/cbthumb"], capture_output=True)
+    home_dir = os.environ.get("HOME")
+    completed_process = subprocess.run([home_dir + "/fun/bin/cbthumb"], capture_output=True)
     if completed_process.returncode != 0:
         warnings.warn("failed to run cbthumb in directory[" + os.getcwd() + "]")
     for item in glob.glob('*'):
