@@ -1,35 +1,19 @@
 <html>
 <head>
     <title>My Comic Collection Search</title>
-    <style>
-        html *
-        {
-           font-size: 1em !important;
-           color: #000 !important;
-           font-family: Arial !important;
-        }
-         .directory {
-           display: grid;
-           grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-           grid-gap: 32px;
-           grid-auto-flow: dense;
-         }
-         .otherdirectories {
-           display: list-item;
-         }
-         .otherdirectories a {
-           display: flex;
-           align-items: center;
-           font-size: x-large;
-         }
 
-         /* Single column display for phones */
-        \@media (max-width: 459px) {
-           .directory {
-             display: flex;
-             flex-direction: column;
-           }
-         }
+{#    {% load static %}#}
+{##}
+{#    <link rel="stylesheet" type="text/css" href="{% static 'search/pico.min.css' %}">#}
+
+    <style>
+        .wrapper {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
     </style>
 </head>
 <body>
@@ -47,9 +31,9 @@ Search resulted in {{ num_comics }}
     {% endif %}<br><br>
 {% endif %}
 
-<div class="directory">
+<div class="wrapper">
 {% for comic in comics %}
-<div class="article">
+<div>
     <a href="{{ comic.url }}">
         <img src="{{ comic.url}}.jpg">
     </a>

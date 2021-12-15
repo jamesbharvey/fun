@@ -43,7 +43,6 @@ class ComicFileHandler:
         else:
             self.to_index['Format'] = 'Floppy'
 
-
     def parse_zip_file(self):
         with zipfile.ZipFile(self.archive_path, "r") as zfile:
             page_count = len(list(filter(lambda x: x.lower().endswith('.jpg'), zfile.namelist())))
@@ -83,11 +82,10 @@ class ComicFileHandler:
                                                 self.archive_path,
                                                 xml_file_name])
             if completed_process.returncode != 0:
-                warnings.warn("couldn't extract file[" + xml_file_name + "] from rar archive[" + rar_file_name + "]")
+                warnings.warn("couldn't extract file[" + xml_file_name +
+                              "] from rar archive[" + self.archive_path + "]")
                 return []
             self.parse_and_set_xml_fields(xml_file_name)
-
-
 
 
 mongoClient = pymongo.MongoClient()
@@ -111,19 +109,16 @@ def insert_comic(dict_to_index):
 def index_directory(directory):
     old_dir = os.getcwd()
     os.chdir(directory)
-
     if os.path.exists("myccc.indexed"):
         warnings.warn(
             "Directory [" + directory + "] already indexed. To re-index it remove the file mycc.indexed from the "
             + "directory and run again.")
         return
-
     for file_name in glob.glob('*.[Cc][Bb][ZzRr]'):
         print(os.path.abspath(file_name))
         fp = ComicFileHandler(file_name)
         fp.parse_file()
         insert_comic(fp.to_index)
-
     home_dir = os.environ.get("HOME")
     completed_process = subprocess.run([home_dir + "/fun/bin/cbthumb"], capture_output=True)
     if completed_process.returncode != 0:
@@ -131,7 +126,6 @@ def index_directory(directory):
     for item in glob.glob('*'):
         if os.path.isdir(item):
             index_directory(item)
-
     Path('mycc.indexed').touch()
     os.chdir(old_dir)
 
@@ -141,6 +135,5 @@ directories = [
     '/Users/james.harvey/Desktop/House of M TPBs (2006-2016)',
     '/Users/james.harvey/Desktop/2021.09.29 Weekly Pack',
 ]
-
 for directory in directories:
     index_directory(directory)
