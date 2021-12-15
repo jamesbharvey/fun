@@ -1,11 +1,11 @@
 <html>
 <head>
     <title>My Comic Collection Search</title>
-
+{##}
 {#    {% load static %}#}
 {##}
 {#    <link rel="stylesheet" type="text/css" href="{% static 'search/pico.min.css' %}">#}
-
+{##}
     <style>
         .wrapper {
             width: 100%;
@@ -13,17 +13,17 @@
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
+            row-gap: 20px;
         }
     </style>
 </head>
 <body>
  <form>
-  <label for="fname">Keywords:</label>
+  <label for="keywords">Keywords:</label>
   <input type="text" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
 </form>
-
 {% if num_comics > 0 %}
-Search resulted in {{ num_comics }}
+    Search resulted in {{ num_comics }}
     {% if num_comics > 1 %}
     comics.
     {% else %}
