@@ -11,9 +11,9 @@
             width: 100%;
             display: flex;
             flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             row-gap: 20px;
+            column-gap: 20px;
         }
     </style>
 </head>
@@ -23,14 +23,10 @@
   <input type="text" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
 </form>
 {% if num_comics > 0 %}
-    Search resulted in {{ num_comics }}
-    {% if num_comics > 1 %}
-    comics.
-    {% else %}
-    comic.
-    {% endif %}<br><br>
+    Search resulted in {{ num_comics }} {% if num_comics > 1 %}comics.{% else %}comic.{% endif %}
+    <br>
+    <br>
 {% endif %}
-
 <div class="wrapper">
 {% for comic in comics %}
 <div>

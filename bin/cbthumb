@@ -232,8 +232,8 @@ say "         .wrapper {
             display: flex;
             flex-wrap: wrap;
             align-items: flex-start;
-            justify-content: space-between;
             row-gap: 20px;
+            column-gap: 20px;
         }";
 say "    </style>";
 say "</head>";
