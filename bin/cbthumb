@@ -227,6 +227,14 @@ say "             display: flex;";
 say "             flex-direction: column;";
 say "           }";
 say "         }";
+say "         .wrapper {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            row-gap: 20px;
+        }";
 say "    </style>";
 say "</head>";
 say "<body>";
@@ -244,14 +252,14 @@ say "    </article>"
 say "</div>"
 }
 say "  <br>";
-say "    <div class=\"directory\">";
+say "    <div class=\"wrapper\">";
 my @all_files = sort ( @cbr_files, @cbz_files, @pdf_files) ;
 for (@all_files) {
     Encode::_utf8_on($_); #risky but it fixed some broken links
     my $archive = URI::Encode::uri_encode($_, { encode_reserved => 1 } );
-    say "        <article class=\"article\">";
-    say "            <a href=\"$archive\"><img src=\"$archive.jpg\" height=\"615\" width=\"400\"></a>";
-    say "        </article>";
+    say "        <div>";
+    say "            <a href=\"$archive\"><img src=\"$archive.jpg\"></a>";
+    say "        </div>";
 }
 
 say "    </div>";
