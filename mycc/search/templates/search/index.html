@@ -39,7 +39,7 @@
     </style>
 
 <script>
-    // http://michaelsoriano.com/better-tooltips-with-plain-javascript-css/
+    // based on http://michaelsoriano.com/better-tooltips-with-plain-javascript-css/
     (function(){
   function createTip(ev){
     var title = this.title;
@@ -98,6 +98,7 @@
 <div class="wrapper">
 {% for comic in comics %}
 <div>
+{# &#10; is a space in the title ; ascii in decimal #}
     <a title="{{ comic.FileName }}" href="{{ comic.url }}">
         <img src="{{ comic.url}}.jpg">
     </a>
