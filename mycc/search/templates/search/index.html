@@ -1,11 +1,11 @@
 <html>
 <head>
     <title>My Comic Collection Search</title>
-{##}
-{#    {% load static %}#}
-{##}
-{#    <link rel="stylesheet" type="text/css" href="{% static 'search/pico.min.css' %}">#}
-{##}
+
+    {% load static %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'search/pico.min.css' %}">
+
     <style>
         .wrapper {
             width: 100%;
@@ -15,7 +15,75 @@
             row-gap: 20px;
             column-gap: 20px;
         }
+        .tooltip {
+            position: absolute;
+            background: #646464;
+            border-radius:4px;
+            padding: 6px 12px;
+            font-family: arial;
+            font-size: 12px;
+            text-shadow: 0px 1px 1px #000;
+            color: #ffc64a;
+        }
+        .tooltip:before {
+            content : " ";
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid #646464;
+            position:absolute;
+            bottom:-5px;
+            left:5px;
+        }
     </style>
+
+<script>
+    // http://michaelsoriano.com/better-tooltips-with-plain-javascript-css/
+    (function(){
+  function createTip(ev){
+    var title = this.title;
+    this.title = '';
+    this.setAttribute("tooltip", title);
+
+    var tooltipWrap = document.createElement("div"); //creates div
+    tooltipWrap.className = 'tooltip'; //adds class
+    tooltipWrap.appendChild(document.createTextNode(title)); //add the text node to the newly created div.
+
+    var firstChild = document.body.firstChild;//gets the first elem after body
+    firstChild.parentNode.insertBefore(tooltipWrap, firstChild); //adds tt before elem
+
+    var padding = 5;
+    var linkProps = this.getBoundingClientRect();
+    var tooltipProps = tooltipWrap.getBoundingClientRect();
+
+    // console.log(tooltipProps.height);
+
+    var topPos = linkProps.top - (tooltipProps.height + padding) ;
+
+    tooltipWrap.setAttribute('style','top:'+topPos+'px;'+'left:'+linkProps.left+'px;')
+    // tooltipWrap.setAttribute('style','left:'+linkProps.left+'px;')
+
+  }
+  function cancelTip(ev){
+    var title = this.getAttribute("tooltip");
+    this.title = title;
+    this.removeAttribute("tooltip");
+    document.querySelector(".tooltip").remove();
+  }
+
+  var links = document.links;
+  for(var i=0; i < links.length; i++){
+     var a = links[i];
+     if(a.title !== ''){
+       a.addEventListener('mouseover',createTip);
+       a.addEventListener('mouseout',cancelTip);
+     }
+    //  console.log(a);
+  } //END FOR
+
+})()//end iffy
+</script>
 </head>
 <body>
  <form>
@@ -30,7 +98,7 @@
 <div class="wrapper">
 {% for comic in comics %}
 <div>
-    <a href="{{ comic.url }}">
+    <a title="{{ comic.FileName }}" href="{{ comic.url }}">
         <img src="{{ comic.url}}.jpg">
     </a>
 </div>
