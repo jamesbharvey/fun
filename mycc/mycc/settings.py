@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure--^(pfa7!0h98brw_3q(*tgiwm2xv$b9ztesvm-(znw2n#1ru!a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.11.2']
 
 
 # Application definition
@@ -76,7 +76,6 @@ WSGI_APPLICATION = 'mycc.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
         'NAME': 'mycc',
         'ENFORCE_SCHEMA': False,
     }

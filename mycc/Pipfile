@@ -5,13 +5,9 @@ name = "pypi"
 
 [packages]
 django = "*"
-rarfile = "*"
-patool = "*"
-pyunpack = "*"
-pymongo = "*"
-djongo = "*"
+pymongo = "==2.9.5"
 
 [dev-packages]
 
 [requires]
-python_version = "3.9"
+python_version = "3.7"
