@@ -13,7 +13,6 @@
                 column-gap: 20px;
             }
         </style>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     </head>
     <body>
         <br>
@@ -26,8 +25,8 @@
                 <div id="advanced">
                     <form>
                         <input type="search" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
-                            <div class="grid">
-                                Format
+                            <div class="wrapper">
+                                <legend><strong>Format</strong></legend>
                                     <label for="Any">
                                         <input type="radio" id="Any" name="format" value="Any"
                                                {% if format == 'Any' %}checked{% endif %}>
@@ -61,5 +60,12 @@
                 {% endfor %}
             </div>
         </div>
+    <div id="like_button_container"></div>
+    <!-- Load React. -->
+    <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    <!-- Load our React component. -->
+    <script src="{% static 'search/like_button.js' %}"></script>
     </body>
 </html>

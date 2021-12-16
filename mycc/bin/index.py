@@ -35,12 +35,15 @@ class ComicFileHandler:
             self.parse_zip_file()
         if archive_path_str.lower().endswith('.cbr'):
             self.parse_rar_file()
+        if archive_path_str.lower().endswith('.pdf'):
+            self.parse_pdf_file()
 
     def set_format(self, page_count):
         if 'Series' in self.to_index and 'Number' in self.to_index:
             self.to_index['Format'] = 'Floppy'
             return
         # yes this is crude and will not work for Euro Comics, etc.
+        # picked 82 for 80 page giants + cover + "scanned by" page
         if page_count > 82:
             self.to_index['Format'] = 'Trade'
         else:
@@ -92,6 +95,9 @@ class ComicFileHandler:
         self.set_format(page_count)
 
 
+    def parse_pdf_file(self):
+        self.set_non_xml_fields()
+
 
 mongoClient = pymongo.MongoClient()
 mongoDbName = mongoClient['mycc']
@@ -119,7 +125,10 @@ def index_directory(directory):
             "Directory [" + directory + "] already indexed. To re-index it remove the file mycc.indexed from the "
             + "directory and run again.")
         return
-    for file_name in glob.glob('*.[Cc][Bb][ZzRr]'):
+    file_names = glob.glob('*.[Cc][Bb][ZzRr]')
+    for file_name in glob.glob('*.[pP][Dd][fF]'):
+        file_names.append(file_name)
+    for file_name in file_names:
         print(os.path.abspath(file_name))
         fp = ComicFileHandler(file_name)
         fp.parse_file()
