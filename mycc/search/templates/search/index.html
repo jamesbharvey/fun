@@ -1,41 +1,40 @@
 <html>
-<head>
-    <title>My Comic Collection Search</title>
-
-    {% load static %}
-
-    <link rel="stylesheet" type="text/css" href="{% static 'search/pico.min.css' %}">
-
-    <style>
-        .wrapper {
-            width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            row-gap: 20px;
-            column-gap: 20px;
-        }
-    </style>
-</head>
-<body>
- <form>
-  <label for="keywords">Keywords:</label>
-  <input type="text" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
-</form>
-{% if num_comics > 0 %}
-    Search resulted in {{ num_comics }} {% if num_comics > 1 %}comics.{% else %}comic.{% endif %}
-    <br>
-    <br>
-{% endif %}
-<div class="wrapper">
-{% for comic in comics %}
-<div>
-{# &#10; is a space in the title ; ascii in decimal #}
-    <a title="{{ comic.LinkTitle }}" href="{{ comic.url }}">
-        <img src="{{ comic.Url}}.jpg">
-    </a>
-</div>
-{% endfor %}
-</div>
-</body>
+    <head>
+        <title>My Comic Collection Search</title>
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'search/pico.min.css' %}">
+        <style>
+            .wrapper {
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                row-gap: 20px;
+                column-gap: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <br>
+            <div class="container-fluid">
+                <form>
+                  Search
+                    <input type="text" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
+                 </form>
+                {% if num_comics > 0 %}
+                    Search resulted in {{ num_comics }} {% if num_comics > 1 %}comics.{% else %}comic.{% endif %}
+                    <br>
+                    <br>
+                {% endif %}
+                <div class="wrapper">
+                {% for comic in comics %}
+                <div>
+                    <a title="{{ comic.LinkTitle }}" href="{{ comic.Url }}">
+                        <img src="{{ comic.Url}}.jpg">
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </body>
 </html>
