@@ -15,9 +15,15 @@ def index(request):
     comic_list = []
     context = {'keywords': ''}
     get_params = request.GET.dict()
+    if 'format' in get_params:
+        context['format'] = get_params['format']
+    else:
+        context['format'] = 'Any'
     if 'keywords' in get_params:
         context['keywords'] = get_params['keywords']
         query = {"$text": {"$search": get_params['keywords']}}
+        if context['format'] != 'Any':
+            query["Format"] = context['format']
         cursor = mongo_collection.find(query)
         absolute_path_roots = [["/Users/james.harvey/Desktop/", "http://127.0.0.1:8080/"]]
         for comic in cursor:

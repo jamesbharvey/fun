@@ -37,8 +37,11 @@ class ComicFileHandler:
             self.parse_rar_file()
 
     def set_format(self, page_count):
+        if 'Series' in self.to_index and 'Number' in self.to_index:
+            self.to_index['Format'] = 'Floppy'
+            return
         # yes this is crude and will not work for Euro Comics, etc.
-        if page_count >= 80:
+        if page_count > 82:
             self.to_index['Format'] = 'Trade'
         else:
             self.to_index['Format'] = 'Floppy'
@@ -55,6 +58,7 @@ class ComicFileHandler:
             for xml_file_name in xml_file_names:
                 xml_path = zfile.extract(xml_file_name)
                 self.parse_and_set_xml_fields(xml_path)
+            self.set_format(page_count)
         self.set_non_xml_fields()
 
     def parse_rar_file(self):
@@ -67,7 +71,6 @@ class ComicFileHandler:
         for bytes in completed_process.stdout.splitlines():
             strings.append(str(bytes).rstrip('/n').lstrip("b'").rstrip("'"))
         page_count = len(list(filter(lambda x: x.lower().endswith('.jpg'), strings)))
-        self.set_format(page_count)
         xml_file_names = list(filter(lambda x: x.lower().endswith('.xml'), strings))
         if len(xml_file_names) != 1 and len(xml_file_names) != 0:
             warnings.warn("multiple xml files in .cbr[" + self.archive_path + "]....")
@@ -86,6 +89,8 @@ class ComicFileHandler:
                               "] from rar archive[" + self.archive_path + "]")
                 return []
             self.parse_and_set_xml_fields(xml_file_name)
+        self.set_format(page_count)
+
 
 
 mongoClient = pymongo.MongoClient()

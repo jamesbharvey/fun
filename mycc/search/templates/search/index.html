@@ -13,14 +13,39 @@
                 column-gap: 20px;
             }
         </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     </head>
     <body>
         <br>
             <div class="container-fluid">
-                <form>
-                  Search
-                    <input type="text" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
-                 </form>
+{#                <div id="simple">#}
+{#                    <form>#}
+{#                        <input type="search" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>#}
+{#                    </form>#}
+{#                </div>#}
+                <div id="advanced">
+                    <form>
+                        <input type="search" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
+                            <div class="grid">
+                                Format
+                                    <label for="Any">
+                                        <input type="radio" id="Any" name="format" value="Any"
+                                               {% if format == 'Any' %}checked{% endif %}>
+                                        Any
+                                    </label>
+                                <label for="Floppy">
+                                <input type="radio" id="Floppy" name="format" value="Floppy"
+                                {% if format == 'Floppy'%}checked{% endif %}>
+                                Floppy
+                            </label>
+                           <label for="Trade">
+                                <input type="radio" id="Trade" name="format" value="Trade"
+                                {% if format == 'Trade' %}checked{% endif %}>
+                                Trade
+                            </label>
+                            </div>
+                    </form>
+                </div>
                 {% if num_comics > 0 %}
                     Search resulted in {{ num_comics }} {% if num_comics > 1 %}comics.{% else %}comic.{% endif %}
                     <br>
