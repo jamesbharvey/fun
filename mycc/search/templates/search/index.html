@@ -31,8 +31,8 @@
 {% for comic in comics %}
 <div>
 {# &#10; is a space in the title ; ascii in decimal #}
-    <a title="{{ comic.FileName }}" href="{{ comic.url }}">
-        <img src="{{ comic.url}}.jpg">
+    <a title="{{ comic.LinkTitle }}" href="{{ comic.url }}">
+        <img src="{{ comic.Url}}.jpg">
     </a>
 </div>
 {% endfor %}
