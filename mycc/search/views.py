@@ -25,7 +25,10 @@ def index(request):
         if context['format'] != 'Any':
             query["Format"] = context['format']
         cursor = mongo_collection.find(query)
-        absolute_path_roots = [["/Users/james.harvey/Desktop/", "http://127.0.0.1:8080/"]]
+        absolute_path_roots = [
+            ["/Users/james.harvey/Desktop/", "http://127.0.0.1:8080/"],
+            ["/home/media/pi/", "http://192.168.11.2/"],
+        ]
         for comic in cursor:
             fields_for_link_title = []
             for field in (
@@ -44,8 +47,9 @@ def index(request):
             comic['LinkTitle'] = "\n".join(fields_for_link_title)
             absolute_file_path = str(comic['AbsoluteFilePath'])
             for path_url_tuple in absolute_path_roots:
-                root_relative_path = absolute_file_path.lstrip(path_url_tuple[0])
-            comic['Url'] = path_url_tuple[1] + urllib.parse.quote(root_relative_path)
+                if absolute_file_path.find(path_url_tuple[0]) == 0:
+                    root_relative_path = absolute_file_path.replace(path_url_tuple[0], '')
+                    comic['Url'] = path_url_tuple[1] + urllib.parse.quote(root_relative_path)
             comic_list.append(comic)
     num_comics = len(comic_list)
     context['comics'] = comic_list

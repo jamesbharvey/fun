@@ -79,6 +79,11 @@ class ComicFileHandler:
             warnings.warn("multiple xml files in .cbr[" + self.archive_path + "]....")
             for filename in xml_file_names:
                 warnings.warn("xml file name is [" + filename + "]", stacklevel=1)
+        # there are several rar libraries in python but none
+        # of them are reliable enough or support enough features to unrar
+        # files from the wild reliably
+        # so we use the official free-as-in-beer version
+        # which must be installed on your path
         for xml_file_name in xml_file_names:
             completed_process = subprocess.run(["unrar",
                                                 "e",
@@ -133,6 +138,11 @@ def index_directory(directory):
         fp = ComicFileHandler(file_name)
         fp.parse_file()
         insert_comic(fp.to_index)
+    for zip_collection in glob.glob('*.[zZ][iI][pP]'):
+        with zipfile.ZipFile(zip_collection, "r") as zfile:
+            #pre_unzip_dir = os.getcwd()
+            #os.chdir(dir_for_unzip)
+            zfile.extractall()
     home_dir = os.environ.get("HOME")
     completed_process = subprocess.run([home_dir + "/fun/bin/cbthumb"], capture_output=True)
     if completed_process.returncode != 0:
@@ -148,6 +158,7 @@ directories = [
     '/Users/james.harvey/Desktop/2021.04.21 Weekly Pack',
     '/Users/james.harvey/Desktop/House of M TPBs (2006-2016)',
     '/Users/james.harvey/Desktop/2021.09.29 Weekly Pack',
+    '/Users/james.harvey/Desktop/adhoc',
 ]
 for directory in directories:
     index_directory(directory)
