@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 class ComicFileHandler:
-    def __init__(self,archive_path):
+    def __init__(self, archive_path):
         self.archive_path = archive_path
         self.to_index = {}
 
@@ -139,10 +139,15 @@ def index_directory(directory):
         fp.parse_file()
         insert_comic(fp.to_index)
     for zip_collection in glob.glob('*.[zZ][iI][pP]'):
-        with zipfile.ZipFile(zip_collection, "r") as zfile:
-            #pre_unzip_dir = os.getcwd()
-            #os.chdir(dir_for_unzip)
-            zfile.extractall()
+        zfile = zipfile.ZipFile(zip_collection, "r")
+        pre_unzip_dir = os.getcwd()
+        dir_for_unzip = zip_collection.removesuffix('.zip')
+        if not os.path.isdir(dir_for_unzip):
+            os.mkdir(dir_for_unzip)
+        os.chdir(dir_for_unzip)
+        zfile.extractall()
+        zfile.close
+        os.chdir(pre_unzip_dir)
     home_dir = os.environ.get("HOME")
     completed_process = subprocess.run([home_dir + "/fun/bin/cbthumb"], capture_output=True)
     if completed_process.returncode != 0:
