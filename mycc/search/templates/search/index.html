@@ -12,6 +12,9 @@
                 row-gap: 20px;
                 column-gap: 20px;
             }
+            .hidden {
+                display: none
+            }
         </style>
     </head>
     <body>
@@ -22,9 +25,10 @@
 {#                        <input type="search" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>#}
 {#                    </form>#}
 {#                </div>#}
+                <div id="advanced_search_button"></div>
                     <form>
                         <input type="search" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
-                    <div id="advanced_search">
+                    <div id="advanced_search" class="hidden">
                                 <div class="wrapper">
                                     <legend><strong>Format</strong></legend>
                                     <label for="Any">
@@ -60,7 +64,6 @@
                 {% endfor %}
             </div>
         </div>
-    <div id="advanced_search_button"></div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <!-- Load React. -->
     <!-- Note: when deploying, replace "development.js" with "production.min.js". -->

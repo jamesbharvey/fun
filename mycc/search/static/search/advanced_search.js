@@ -5,15 +5,15 @@ class AdvancedButton extends React.Component {
   constructor(props) {
     super(props);
     this.state = { advanced: false };
-    this.toggleAdvancedSearchVisible()
   }
 
   render() {
+    this.toggleAdvancedSearchVisible()
     if (this.state.advanced) {
       return e('button',
           { onClick: () => { this.setState({advanced: false}); this.toggleAdvancedSearchVisible();}
           },
-          'Advanced'
+          'Simple'
       );
     }
 
@@ -21,7 +21,7 @@ class AdvancedButton extends React.Component {
       'button',
       { onClick: () => { this.setState({ advanced: true });
                                   this.toggleAdvancedSearchVisible();} },
-      'Simple'
+      'Advanced'
     );
   }
   //
