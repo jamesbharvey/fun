@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import re
 import warnings
 import zipfile
 import glob
@@ -24,10 +25,25 @@ class ComicFileHandler:
         for child in root:
             self.to_index[child.tag] = child.text
 
+    def set_download_type(self):
+        match = re.search('\d{4}\.\d{1,2}\.\d{1,2} Weekly Pack',self.to_index['AbsoluteFilePath'])
+        if match is not None:
+            self.to_index['DownloadType'] = 'Weekly'
+            return
+        file_directory = self.to_index['AbsoluteFilePath']
+        file_directory = str(file_directory).removesuffix(self.to_index['FileName'])
+        file_directory = file_directory.removesuffix('/')
+        if file_directory not in directories:
+            self.to_index['DownloadType'] = 'Collection'
+            return
+        self.to_index['DownloadType'] = 'Single'
+        return
+
     def set_non_xml_fields(self):
         self.to_index['FileName'] = os.path.basename(self.archive_path)
         self.to_index['RelativeFilePath'] = self.archive_path
         self.to_index['AbsoluteFilePath'] = os.path.abspath(self.archive_path)
+        self.set_download_type()
 
     def parse_file(self):
         archive_path_str = str(self.archive_path)
@@ -81,7 +97,7 @@ class ComicFileHandler:
                 warnings.warn("xml file name is [" + filename + "]", stacklevel=1)
         # there are several rar libraries in python but none
         # of them are reliable enough or support enough features to unrar
-        # files from the wild reliably
+        # files from the wild reliably,
         # so we use the official free-as-in-beer version
         # which must be installed on your path
         for xml_file_name in xml_file_names:
@@ -161,7 +177,6 @@ def index_directory(directory):
 
 directories = [
     '/Users/james.harvey/Desktop/2021.04.21 Weekly Pack',
-    '/Users/james.harvey/Desktop/House of M TPBs (2006-2016)',
     '/Users/james.harvey/Desktop/2021.09.29 Weekly Pack',
     '/Users/james.harvey/Desktop/adhoc',
 ]
