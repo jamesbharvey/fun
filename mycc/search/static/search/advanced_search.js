@@ -4,7 +4,11 @@ const e = React.createElement;
 class AdvancedButton extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { advanced: false };
+    if ($('#search_mode').val() === 'simple') {
+      this.state = { advanced: false };
+    } else {
+      this.state = { advanced: true };
+    }
   }
 
   render() {
@@ -31,9 +35,12 @@ class AdvancedButton extends React.Component {
 
   toggleAdvancedSearchVisible() {
     if (this.state.advanced) {
-      $('#advanced_search').show()
+      $('#search_mode').val("advanced");
+      $('#advanced_search').show();
     } else {
-      $('#advanced_search').hide()
+      $('input:radio[name="format"][value="Any"]').prop('checked', true);
+      $('#search_mode').val("simple");
+      $('#advanced_search').hide();
     }
   }
 }

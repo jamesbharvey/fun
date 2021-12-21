@@ -19,6 +19,10 @@ def index(request):
         context['format'] = get_params['format']
     else:
         context['format'] = 'Any'
+    if 'search_mode' in get_params:
+        context['search_mode'] = get_params['search_mode']
+    else:
+        context['search_mode'] = "simple"
     if 'keywords' in get_params:
         context['keywords'] = get_params['keywords']
         query = {"$text": {"$search": get_params['keywords']}}

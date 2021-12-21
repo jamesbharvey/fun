@@ -28,6 +28,7 @@
                 <div id="advanced_search_button"></div>
                     <form>
                         <input type="search" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
+                        <input type="hidden" id="search_mode" name="search_mode" value="{{ search_mode }}">
                     <div id="advanced_search" class="hidden">
                                 <div class="wrapper">
                                     <legend><strong>Format</strong></legend>
