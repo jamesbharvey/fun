@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 django = "*"
 pymongo = "==2.9.5"
+pypdf4 = "*"
 
 [dev-packages]
 
