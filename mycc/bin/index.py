@@ -27,7 +27,7 @@ class ComicFileHandler:
             self.to_index[child.tag] = child.text
 
     def set_download_type(self):
-        match = re.search('\d{4}\.\d{1,2}\.\d{1,2} Weekly Pack',self.to_index['AbsoluteFilePath'])
+        match = re.search('\d{4}\.\d{1,2}\.\d{1,2} Weekly Pack', self.to_index['AbsoluteFilePath'])
         if match is not None:
             self.to_index['DownloadType'] = 'Weekly'
             return
@@ -60,9 +60,9 @@ class ComicFileHandler:
             self.to_index['Format'] = 'Floppy'
             return
         # yes this is crude and will not work for Euro Comics, etc.
-        # picked 82 for 80 page giants + cover + "scanned by" page
-        #if 'PageCount' in self.to_index:
-        #    page_count = self.to_index['PageCount']
+        # picked 82 for 80-page giants + cover + "scanned by" page
+        if 'PageCount' in self.to_index:
+            page_count = int(self.to_index['PageCount'])
         if page_count > 82:
             self.to_index['Format'] = 'Trade'
         else:
@@ -127,6 +127,7 @@ class ComicFileHandler:
             self.to_index['Title'] = doc_info.title
             self.to_index['PageCount'] = number_of_pages
             self.set_format(number_of_pages)
+
 
 mongoClient = pymongo.MongoClient()
 mongoDbName = mongoClient['mycc']
