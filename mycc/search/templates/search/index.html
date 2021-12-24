@@ -12,39 +12,62 @@
                 row-gap: 20px;
                 column-gap: 20px;
             }
+            .hidden {
+                display: none
+            }
         </style>
     </head>
     <body>
         <br>
             <div class="container-fluid">
-{#                <div id="simple">#}
-{#                    <form>#}
-{#                        <input type="search" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>#}
-{#                    </form>#}
-{#                </div>#}
-                <div id="advanced">
+                <div id="advanced_search_button"></div>
                     <form>
-                        <input type="search" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
-                            <div class="wrapper">
-                                <legend><strong>Format</strong></legend>
+                        <input type="search" width="90%" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
+                        <input type="hidden" id="search_mode" name="search_mode" value="{{ search_mode }}">
+                    <div id="advanced_search" class="hidden">
+                                <div class="wrapper">
+                                    <legend><strong>Format</strong></legend>
                                     <label for="Any">
                                         <input type="radio" id="Any" name="format" value="Any"
                                                {% if format == 'Any' %}checked{% endif %}>
                                         Any
                                     </label>
-                                <label for="Floppy">
-                                <input type="radio" id="Floppy" name="format" value="Floppy"
-                                {% if format == 'Floppy'%}checked{% endif %}>
-                                Floppy
-                            </label>
-                           <label for="Trade">
-                                <input type="radio" id="Trade" name="format" value="Trade"
-                                {% if format == 'Trade' %}checked{% endif %}>
-                                Trade
-                            </label>
-                            </div>
+                                    <label for="Floppy">
+                                        <input type="radio" id="Floppy" name="format" value="Floppy"
+                                            {% if format == 'Floppy'%}checked{% endif %}>
+                                        Floppy
+                                    </label>
+                                    <label for="Trade">
+                                        <input type="radio" id="Trade" name="format" value="Trade"
+                                            {% if format == 'Trade' %}checked{% endif %}>
+                                        Trade
+                                    </label>
+                                </div>
+                                <div class="wrapper">
+                                    <legend><strong>Download Type</strong></legend>
+                                    <label for="AnyDownloadType">
+                                        <input type="radio" id="AnyDownloadType" name="download_type" value="Any"
+                                               {% if download_type == 'Any' %}checked{% endif %}>
+                                        Any
+                                    </label>
+                                    <label for="SingleDownloadType">
+                                        <input type="radio" id="SingleDownloadType" name="download_type" value="Single"
+                                               {% if download_type == 'Single' %}checked{% endif %}>
+                                        Single
+                                    </label>
+                                    <label for="WeeklyDownloadType">
+                                        <input type="radio" id="WeeklyDownloadType" name="download_type" value="Weekly"
+                                               {% if download_type == 'Weekly' %}checked{% endif %}>
+                                        Weekly
+                                    </label>
+                                    <label for="CollectionDownloadType">
+                                        <input type="radio" id="CollectionDownloadType" name="download_type" value="Collection"
+                                               {% if download_type == 'Collection' %}checked{% endif %}>
+                                        Collection
+                                    </label>
+                                </div>
+                    </div>
                     </form>
-                </div>
                 {% if num_comics > 0 %}
                     Search resulted in {{ num_comics }} {% if num_comics > 1 %}comics.{% else %}comic.{% endif %}
                     <br>
@@ -60,12 +83,12 @@
                 {% endfor %}
             </div>
         </div>
-    <div id="like_button_container"></div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <!-- Load React. -->
     <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
     <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
     <!-- Load our React component. -->
-    <script src="{% static 'search/like_button.js' %}"></script>
+    <script src="{% static 'search/advanced_search.js' %}"></script>
     </body>
 </html>

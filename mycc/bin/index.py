@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 import os
+import re
 import warnings
 import zipfile
 import glob
 import subprocess
 import xml.etree.ElementTree
 import pymongo
+from PyPDF4 import PdfFileReader
 from pathlib import Path
 
 
@@ -24,10 +26,25 @@ class ComicFileHandler:
         for child in root:
             self.to_index[child.tag] = child.text
 
+    def set_download_type(self):
+        match = re.search('\d{4}\.\d{1,2}\.\d{1,2} Weekly Pack', self.to_index['AbsoluteFilePath'])
+        if match is not None:
+            self.to_index['DownloadType'] = 'Weekly'
+            return
+        file_directory = self.to_index['AbsoluteFilePath']
+        file_directory = str(file_directory).removesuffix(self.to_index['FileName'])
+        file_directory = file_directory.removesuffix('/')
+        if file_directory not in directories:
+            self.to_index['DownloadType'] = 'Collection'
+            return
+        self.to_index['DownloadType'] = 'Single'
+        return
+
     def set_non_xml_fields(self):
         self.to_index['FileName'] = os.path.basename(self.archive_path)
         self.to_index['RelativeFilePath'] = self.archive_path
         self.to_index['AbsoluteFilePath'] = os.path.abspath(self.archive_path)
+        self.set_download_type()
 
     def parse_file(self):
         archive_path_str = str(self.archive_path)
@@ -43,7 +60,9 @@ class ComicFileHandler:
             self.to_index['Format'] = 'Floppy'
             return
         # yes this is crude and will not work for Euro Comics, etc.
-        # picked 82 for 80 page giants + cover + "scanned by" page
+        # picked 82 for 80-page giants + cover + "scanned by" page
+        if 'PageCount' in self.to_index:
+            page_count = int(self.to_index['PageCount'])
         if page_count > 82:
             self.to_index['Format'] = 'Trade'
         else:
@@ -81,8 +100,7 @@ class ComicFileHandler:
                 warnings.warn("xml file name is [" + filename + "]", stacklevel=1)
         # there are several rar libraries in python but none
         # of them are reliable enough or support enough features to unrar
-        # files from the wild reliably
-        # so we use the official free-as-in-beer version
+        # files from the wild reliably, so we use the official free-as-in-beer version
         # which must be installed on your path
         for xml_file_name in xml_file_names:
             completed_process = subprocess.run(["unrar",
@@ -99,9 +117,16 @@ class ComicFileHandler:
             self.parse_and_set_xml_fields(xml_file_name)
         self.set_format(page_count)
 
-
     def parse_pdf_file(self):
         self.set_non_xml_fields()
+        with open(self.archive_path, 'rb') as f:
+            pdf = PdfFileReader(f)
+            doc_info = pdf.getDocumentInfo()
+            number_of_pages = pdf.getNumPages()
+            self.to_index['Writer'] = doc_info.author
+            self.to_index['Title'] = doc_info.title
+            self.to_index['PageCount'] = number_of_pages
+            self.set_format(number_of_pages)
 
 
 mongoClient = pymongo.MongoClient()
@@ -161,7 +186,6 @@ def index_directory(directory):
 
 directories = [
     '/Users/james.harvey/Desktop/2021.04.21 Weekly Pack',
-    '/Users/james.harvey/Desktop/House of M TPBs (2006-2016)',
     '/Users/james.harvey/Desktop/2021.09.29 Weekly Pack',
     '/Users/james.harvey/Desktop/adhoc',
 ]

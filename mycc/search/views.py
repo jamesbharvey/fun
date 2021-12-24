@@ -19,11 +19,21 @@ def index(request):
         context['format'] = get_params['format']
     else:
         context['format'] = 'Any'
+    if 'search_mode' in get_params:
+        context['search_mode'] = get_params['search_mode']
+    else:
+        context['search_mode'] = "simple"
+    if 'download_type' in get_params:
+        context['download_type'] = get_params['download_type']
+    else:
+        context['download_type'] = 'Any'
     if 'keywords' in get_params:
         context['keywords'] = get_params['keywords']
         query = {"$text": {"$search": get_params['keywords']}}
         if context['format'] != 'Any':
             query["Format"] = context['format']
+        if context['download_type'] != 'Any':
+            query["DownloadType"] = context['download_type']
         cursor = mongo_collection.find(query)
         absolute_path_roots = [
             ["/Users/james.harvey/Desktop/", "http://127.0.0.1:8080/"],
