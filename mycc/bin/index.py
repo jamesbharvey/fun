@@ -69,18 +69,21 @@ class ComicFileHandler:
             self.to_index['Format'] = 'Floppy'
 
     def parse_zip_file(self):
-        with zipfile.ZipFile(self.archive_path, "r") as zfile:
-            page_count = len(list(filter(lambda x: x.lower().endswith('.jpg'), zfile.namelist())))
-            self.set_format(page_count)
-            xml_file_names = list(filter(lambda x: x.lower().endswith('.xml'), zfile.namelist()))
-            if len(xml_file_names) != 1 and len(xml_file_names) != 0:
-                warnings.warn("multiple xml files in .cbr[" + self.archive_path + "]....")
-                for filename in xml_file_names:
-                    warnings.warn("xml file name is [" + filename + "]", stacklevel=1)
-            for xml_file_name in xml_file_names:
-                xml_path = zfile.extract(xml_file_name)
-                self.parse_and_set_xml_fields(xml_path)
-            self.set_format(page_count)
+        try:
+            with zipfile.ZipFile(self.archive_path, "r") as zfile:
+                page_count = len(list(filter(lambda x: x.lower().endswith('.jpg'), zfile.namelist())))
+                self.set_format(page_count)
+                xml_file_names = list(filter(lambda x: x.lower().endswith('.xml'), zfile.namelist()))
+                if len(xml_file_names) != 1 and len(xml_file_names) != 0:
+                    warnings.warn("multiple xml files in .cbr[" + self.archive_path + "]....")
+                    for filename in xml_file_names:
+                        warnings.warn("xml file name is [" + filename + "]", stacklevel=1)
+                for xml_file_name in xml_file_names:
+                    xml_path = zfile.extract(xml_file_name)
+                    self.parse_and_set_xml_fields(xml_path)
+                self.set_format(page_count)
+        except (IOError, zipfile.BadZipfile) as e:
+            warnings.warn("BadZipFile exception for file:" + self.archive_path)
         self.set_non_xml_fields()
 
     def parse_rar_file(self):
@@ -188,8 +191,10 @@ def index_directory(directory):
 
 directories = [
 '/mnt/buffalo2tb/done',
+'/home/james/broken',
 ]
 
 for directory in directories:
-    index_directory(directory)
+    if os.path.exists(directory):
+        index_directory(directory)
 

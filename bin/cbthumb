@@ -1,19 +1,12 @@
 #!/usr/bin/perl
 
+
+#
 # vim: filetype=perl5
 #
-# needs unrar-nonfree
-# needs unzip 
-# needs imagemagic "convert" utility
-# needs gs (ghostscript)
-#
-#  sudo apt-get install \
-#               ghostscript \
-#               imagemagick \
-#               unzip \
-#               unrar-nonfree \
-#               liburi-encode-perl \
-#               libimage-magick-perl \
+
+# install dependencies
+#sudo apt-get install ghostscript imagemagick unzip unrar liburi-encode-perl libarchive-zip-perl
 
 use feature qw(say);
 use warnings;
@@ -29,6 +22,7 @@ use Archive::Zip qw(:ERROR_CODES);
 use Image::Magick;
 use File::Copy;
 use Cwd 'abs_path';
+
 
 my $verbose = 1;
 
@@ -128,15 +122,30 @@ for (@cbz_files) {
     say "doing file ",$abs_path if $verbose;
     next if -f "$zip_file.jpg";
     my $zip = Archive::Zip->new();
-    my $status = $zip->read($zip_file);
-    die "Read of $zip_file failed\n" if $status != AZ_OK;
+    my $status;
+    eval { $status = $zip->read($zip_file) };
+    if ($@) {
+       warn $@;
+       make_default_thumbnail($zip_file);
+       next;
+    }
+    if ($status != AZ_OK) {
+	warn "Read of $zip_file failed, skipping\n";
+	make_default_thumbnail($zip_file);
+        next;
+    }
 
     my $quoted_zip_file = quotemeta($zip_file);
     my $first_page;
     my $lines;
-    if (! open($lines, "unzip -l $quoted_zip_file |")) {
+
+    eval {
+	open($lines, "unzip -l $quoted_zip_file |");
+    };
+    if ($@) {
+       warn $@;
        make_default_thumbnail($zip_file);
-        next;
+       next;
     }
     my @jpgs;
     while (<$lines>) {
