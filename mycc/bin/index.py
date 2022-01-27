@@ -32,7 +32,7 @@ class ComicFileHandler:
             self.to_index['DownloadType'] = 'Weekly'
             return
         file_directory = self.to_index['AbsoluteFilePath']
-        file_directory = str(file_directory).removesuffix(self.to_index['FileName'])
+        file_directory = file_directory.removesuffix(self.to_index['FileName'])
         file_directory = file_directory.removesuffix('/')
         if file_directory not in directories:
             self.to_index['DownloadType'] = 'Collection'
@@ -150,14 +150,16 @@ def insert_comic(dict_to_index):
 def index_directory(directory):
     old_dir = os.getcwd()
     os.chdir(directory)
-    if os.path.exists("myccc.indexed"):
+    if os.path.exists("mycc.indexed"):
         warnings.warn(
             "Directory [" + directory + "] already indexed. To re-index it remove the file mycc.indexed from the "
             + "directory and run again.")
+        os.chdir(old_dir)
         return
     file_names = glob.glob('*.[Cc][Bb][ZzRr]')
     for file_name in glob.glob('*.[pP][Dd][fF]'):
         file_names.append(file_name)
+        print(file_name)
     for file_name in file_names:
         print(os.path.abspath(file_name))
         fp = ComicFileHandler(file_name)
@@ -185,9 +187,9 @@ def index_directory(directory):
 
 
 directories = [
-    '/Users/james.harvey/Desktop/2021.04.21 Weekly Pack',
-    '/Users/james.harvey/Desktop/2021.09.29 Weekly Pack',
-    '/Users/james.harvey/Desktop/adhoc',
+'/mnt/buffalo2tb/done',
 ]
+
 for directory in directories:
     index_directory(directory)
+
