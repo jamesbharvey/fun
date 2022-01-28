@@ -32,6 +32,10 @@ class ComicFileHandler:
         if match is not None:
             self.to_index['DownloadType'] = 'Weekly'
             return
+        match = re.search('0-Day Week of \d{4}\.\d{1,2}\.\d{1,2}', self.to_index['AbsoluteFilePath'])
+        if match is not None:
+            self.to_index['DownloadType'] = 'Weekly'
+            return
         file_directory = self.to_index['AbsoluteFilePath']
         file_directory = file_directory.removesuffix(self.to_index['FileName'])
         file_directory = file_directory.removesuffix('/')
@@ -57,9 +61,6 @@ class ComicFileHandler:
             self.parse_pdf_file()
 
     def set_format(self, page_count):
-        if 'Series' in self.to_index and 'Number' in self.to_index and self.to_index["Number"] != "TPB":
-            self.to_index['Format'] = 'Floppy'
-            return
         # yes this is crude and will not work for Euro Comics, etc.
         # picked 82 for 80-page giants + cover + "scanned by" page
         if 'PageCount' in self.to_index:
