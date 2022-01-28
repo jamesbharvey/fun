@@ -7,6 +7,7 @@ import glob
 import subprocess
 import xml.etree.ElementTree
 import pymongo
+import argparse
 from PyPDF4 import PdfFileReader
 from pathlib import Path
 
@@ -153,7 +154,7 @@ def insert_comic(dict_to_index):
 def index_directory(directory):
     old_dir = os.getcwd()
     os.chdir(directory)
-    if os.path.exists("mycc.indexed"):
+    if os.path.exists("mycc.indexed") and not args.force:
         warnings.warn(
             "Directory [" + directory + "] already indexed. To re-index it remove the file mycc.indexed from the "
             + "directory and run again.")
@@ -190,11 +191,16 @@ def index_directory(directory):
 
 
 directories = [
-'/mnt/buffalo2tb/done',
-'/home/james/broken',
+    '/mnt/buffalo2tb/done',
+    '/home/james/broken',
 ]
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", "--verbose", help="increase output verbosity",
+                    action="store_true")
+parser.add_argument("-f", "--force", help="index files regardless",
+                    action="store_true")
+args = parser.parse_args()
 
 for directory in directories:
     if os.path.exists(directory):
         index_directory(directory)
-
