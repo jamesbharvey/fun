@@ -80,6 +80,8 @@ class ComicFileHandler:
                     for filename in xml_file_names:
                         warnings.warn("xml file name is [" + filename + "]", stacklevel=1)
                 for xml_file_name in xml_file_names:
+                    if os.path.exists(xml_file_name):
+                        os.remove(xml_file_name)
                     xml_path = zfile.extract(xml_file_name)
                     self.parse_and_set_xml_fields(xml_path)
                 self.set_format(page_count)
@@ -107,6 +109,8 @@ class ComicFileHandler:
         # files from the wild reliably, so we use the official free-as-in-beer version
         # which must be installed on your path
         for xml_file_name in xml_file_names:
+            if os.path.exists(xml_file_name):
+                os.remove(xml_file_name)
             completed_process = subprocess.run(["unrar",
                                                 "e",
                                                 "-o+",
