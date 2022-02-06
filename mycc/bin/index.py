@@ -18,7 +18,6 @@ class ComicFileHandler:
         self.to_index = {}
 
     def parse_and_set_xml_fields(self, xml_path):
-        xml_path = os.path.basename(xml_path)
         tree = xml.etree.ElementTree.parse(xml_path)
         root = tree.getroot()
         if root.tag != 'ComicInfo':
@@ -77,7 +76,7 @@ class ComicFileHandler:
                 self.set_format(page_count)
                 xml_file_names = list(filter(lambda x: x.lower().endswith('.xml'), zfile.namelist()))
                 if len(xml_file_names) != 1 and len(xml_file_names) != 0:
-                    warnings.warn("multiple xml files in .cbr[" + self.archive_path + "]....")
+                    warnings.warn("multiple xml files in .cbz[" + self.archive_path + "]....")
                     for filename in xml_file_names:
                         warnings.warn("xml file name is [" + filename + "]", stacklevel=1)
                 for xml_file_name in xml_file_names:
@@ -138,20 +137,6 @@ class ComicFileHandler:
             self.set_format(number_of_pages)
 
 
-mongoClient = pymongo.MongoClient()
-mongoDbName = mongoClient['mycc']
-mongoCollection = mongoDbName['comics']
-mongoCollection.create_index([("FileName", "text"),
-                              ("Series", "text"),
-                              ("Title", "text"),
-                              ("Summary", "text"),
-                              ("Genre", "text"),
-                              ("Writer", "text"),
-                              ("Penciller", "text"),
-                              ("Year", "text"),
-                              ("Number", "text")])
-
-
 def insert_comic(dict_to_index):
     mongoCollection.insert_one(dict_to_index)
 
@@ -162,7 +147,7 @@ def index_directory(directory):
     if os.path.exists("mycc.indexed") and not args.force:
         warnings.warn(
             "Directory [" + directory + "] already indexed. To re-index it remove the file mycc.indexed from the "
-            + "directory and run again.")
+            + "directory and run again, or run with --force.")
         os.chdir(old_dir)
         return
     file_names = glob.glob('*.[Cc][Bb][ZzRr]')
@@ -204,7 +189,25 @@ parser.add_argument("-v", "--verbose", help="increase output verbosity",
                     action="store_true")
 parser.add_argument("-f", "--force", help="index files regardless",
                     action="store_true")
+parser.add_argument("-r", "--refresh", help="delete the existing index and make a new one",
+                    action="store_true")
 args = parser.parse_args()
+
+mongoClient = pymongo.MongoClient()
+mongoDbName = mongoClient['mycc']
+mongoCollection = mongoDbName['comics']
+if args.refresh:
+    mongoCollection.drop()
+
+mongoCollection.create_index([("FileName", "text"),
+                              ("Series", "text"),
+                              ("Title", "text"),
+                              ("Summary", "text"),
+                              ("Writer", "text"),
+                              ("Year", "text"),
+                              ("Number", "text"),
+                              ("AbsoluteFilePath", "text")])
+
 
 for directory in directories:
     if os.path.exists(directory):

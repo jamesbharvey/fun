@@ -38,7 +38,8 @@ def index(request):
         absolute_path_roots = [
             ["/Users/james.harvey/Desktop/", "http://127.0.0.1:8080/"],
             ["/home/media/pi/", "http://192.168.11.2/"],
-            ["/mnt/","http://192.168.11.23/"],
+            ["/mnt/", "http://192.168.11.23/"],
+            ["/home/james/broken", "http://127.0.0.1/broken/"],
         ]
         for comic in cursor:
             fields_for_link_title = []
@@ -51,6 +52,7 @@ def index(request):
                           'Genre',
                           'Publisher',
                           'Format',
+                          'DownloadType',
                           'Summary',
                           'FileName'):
                 if field in comic:
