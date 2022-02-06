@@ -24,7 +24,8 @@ class ComicFileHandler:
             warnings.warn("tried to parse xml file[" + xml_path + "] that is not ComicInfo")
             return
         for child in root:
-            self.to_index[child.tag] = child.text
+            if child.text is not None:
+                self.to_index[child.tag] = child.text
 
     def set_download_type(self):
         match = re.search('\d{4}\.\d{1,2}\.\d{1,2} Weekly Pack', self.to_index['AbsoluteFilePath'])
@@ -62,7 +63,7 @@ class ComicFileHandler:
     def set_format(self, page_count):
         # yes this is crude and will not work for Euro Comics, etc.
         # picked 82 for 80-page giants + cover + "scanned by" page
-        if 'PageCount' in self.to_index:
+        if 'PageCount' in self.to_index and self.to_index['PageCount'] is not None:
             page_count = int(self.to_index['PageCount'])
         if page_count > 82:
             self.to_index['Format'] = 'Trade'
