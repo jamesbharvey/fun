@@ -183,6 +183,7 @@ def index_directory(directory):
 
 directories = [
     '/mnt/buffalo2tb/done',
+    '/mnt/buffalo2tb/torrents.done',
     '/home/james/broken',
 ]
 parser = argparse.ArgumentParser()
