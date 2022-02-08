@@ -113,7 +113,7 @@ class ComicFileHandler:
             if os.path.exists(xml_file_name):
                 os.remove(xml_file_name)
             completed_process = subprocess.run(["unrar",
-                                                "e",
+                                                "ex",
                                                 "-o+",
                                                 "-y",
                                                 "-inul",
