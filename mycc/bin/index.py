@@ -192,11 +192,19 @@ parser.add_argument("-f", "--force", help="index files regardless",
                     action="store_true")
 parser.add_argument("-r", "--refresh", help="delete the existing index and make a new one",
                     action="store_true")
+parser.add_argument("-p", "--production",help="use the production collection",
+                    action="store_true")
+
 args = parser.parse_args()
 
 mongoClient = pymongo.MongoClient()
 mongoDbName = mongoClient['mycc']
-mongoCollection = mongoDbName['comics']
+
+if args.production:
+    mongoCollection = mongoDbName['comics']
+else:
+    mongoCollection = mongoDbName['test']
+
 if args.refresh:
     mongoCollection.drop()
 
