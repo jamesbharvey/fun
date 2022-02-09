@@ -18,14 +18,19 @@ class ComicFileHandler:
         self.to_index = {}
 
     def parse_and_set_xml_fields(self, xml_path):
-        tree = xml.etree.ElementTree.parse(xml_path)
-        root = tree.getroot()
-        if root.tag != 'ComicInfo':
-            warnings.warn("tried to parse xml file[" + xml_path + "] that is not ComicInfo")
+        try:
+            tree = xml.etree.ElementTree.parse(xml_path)
+            root = tree.getroot()
+            if root.tag != 'ComicInfo':
+                warnings.warn("tried to parse xml file[" + xml_path + "] that is not ComicInfo")
+                return
+            for child in root:
+                if child.text is not None:
+                    self.to_index[child.tag] = child.text
+        except:
+            warnings.warn("error parsing xml file [" + xml_path + "] for comic archive file ["
+                          + self.archive_path + "]")
             return
-        for child in root:
-            if child.text is not None:
-                self.to_index[child.tag] = child.text
 
     def set_download_type(self):
         match = re.search('\d{4}\.\d{1,2}\.\d{1,2} Weekly Pack', self.to_index['AbsoluteFilePath'])
@@ -113,7 +118,7 @@ class ComicFileHandler:
             if os.path.exists(xml_file_name):
                 os.remove(xml_file_name)
             completed_process = subprocess.run(["unrar",
-                                                "ex",
+                                                "e",
                                                 "-o+",
                                                 "-y",
                                                 "-inul",
@@ -123,6 +128,7 @@ class ComicFileHandler:
                 warnings.warn("couldn't extract file[" + xml_file_name +
                               "] from rar archive[" + self.archive_path + "]")
                 return []
+            xml_file_name = os.path.basename(xml_file_name)
             self.parse_and_set_xml_fields(xml_file_name)
         self.set_format(page_count)
 
@@ -184,6 +190,7 @@ def index_directory(directory):
 directories = [
     '/mnt/buffalo2tb/done',
     '/mnt/buffalo2tb/torrents.done',
+    '/mnt/buffalo2tb/torrents.done2',
     '/home/james/broken',
 ]
 parser = argparse.ArgumentParser()
@@ -193,22 +200,18 @@ parser.add_argument("-f", "--force", help="index files regardless",
                     action="store_true")
 parser.add_argument("-r", "--refresh", help="delete the existing index and make a new one",
                     action="store_true")
-parser.add_argument("-p", "--production",help="use the production collection",
+parser.add_argument("-p", "--production", help="use the production collection",
                     action="store_true")
-
 args = parser.parse_args()
 
 mongoClient = pymongo.MongoClient()
 mongoDbName = mongoClient['mycc']
-
 if args.production:
     mongoCollection = mongoDbName['comics']
 else:
     mongoCollection = mongoDbName['test']
-
 if args.refresh:
     mongoCollection.drop()
-
 mongoCollection.create_index([("FileName", "text"),
                               ("Series", "text"),
                               ("Title", "text"),
@@ -217,8 +220,6 @@ mongoCollection.create_index([("FileName", "text"),
                               ("Year", "text"),
                               ("Number", "text"),
                               ("AbsoluteFilePath", "text")])
-
-
 for directory in directories:
     if os.path.exists(directory):
         index_directory(directory)

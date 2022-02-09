@@ -42,6 +42,7 @@ class AdvancedButton extends React.Component {
     } else {
       $('input:radio[name="format"][value="Any"]').prop('checked', true)
       $('input:radio[name="download_type"][value="Any"]').prop('checked', true);
+      $('input:radio[name="sort_type"][value="Relevance"]').prop('checked', true);
       $('#search_mode').val("simple");
       $('#advanced_search').hide();
     }

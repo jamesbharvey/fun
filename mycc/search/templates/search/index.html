@@ -70,6 +70,19 @@
                                         Collection
                                     </label>
                                 </div>
+                                <div class="wrapper">
+                                    <legend><strong>Sort By</strong></legend>
+                                    <label for="SortByRelevanceType">
+                                        <input type="radio" id="SortByRelevanceType" name="sort_type" Value="Relevance"
+                                            {% if sort_type == 'Relevance' %}checked{% endif %}>
+                                        Relevance
+                                    </label>
+                                    <label for="SortByFileNameAscendingType">
+                                        <input type="radio" id="SortByFileNameAscendingType" name="sort_type" Value="FileName"
+                                            {% if sort_type == 'FileName' %}checked{% endif %}>
+                                        File Name
+                                    </label>
+                                </div>
                     </div>
                     </form>
                 {% if num_comics > 0 %}

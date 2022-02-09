@@ -27,6 +27,10 @@ def index(request):
         context['download_type'] = get_params['download_type']
     else:
         context['download_type'] = 'Any'
+    if 'sort_type' in get_params:
+        context["sort_type"] = get_params["sort_type"]
+    else:
+        context["sort_type"] = "Relevance"
     if 'keywords' in get_params:
         context['keywords'] = get_params['keywords']
         query = {"$text": {"$search": get_params['keywords']}}
@@ -35,9 +39,9 @@ def index(request):
         if context['download_type'] != 'Any':
             query["DownloadType"] = context['download_type']
         cursor = mongo_collection.find(query)
+        if context['sort_type'] == "FileName":
+            cursor.sort("FileName", pymongo.ASCENDING)
         absolute_path_roots = [
-            ["/Users/james.harvey/Desktop/", "http://127.0.0.1:8080/"],
-            ["/home/media/pi/", "http://192.168.11.2/"],
             ["/mnt/", "http://192.168.11.23/"],
             ["/home/james/broken", "http://127.0.0.1/broken/"],
         ]
