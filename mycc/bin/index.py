@@ -136,12 +136,15 @@ class ComicFileHandler:
         self.set_non_xml_fields()
         with open(self.archive_path, 'rb') as f:
             pdf = PdfFileReader(f)
-            doc_info = pdf.getDocumentInfo()
             number_of_pages = pdf.getNumPages()
-            self.to_index['Writer'] = doc_info.author
-            self.to_index['Title'] = doc_info.title
             self.to_index['PageCount'] = number_of_pages
             self.set_format(number_of_pages)
+            doc_info = pdf.getDocumentInfo()
+            if doc_info is not None:
+                if doc_info.author is not None:
+                    self.to_index['Writer'] = doc_info.author
+                if doc_info.title is not None:
+                    self.to_index['Title'] = doc_info.title
 
 
 def insert_comic(dict_to_index):
@@ -191,6 +194,8 @@ directories = [
     '/mnt/buffalo2tb/done',
     '/mnt/buffalo2tb/torrents.done',
     '/mnt/buffalo2tb/torrents.done2',
+    '/mnt/buffalo2tb/torrents.automoved',
+    '/mnt/seagate8tb/torrents.done',
     '/home/james/broken',
 ]
 parser = argparse.ArgumentParser()
