@@ -207,6 +207,9 @@ parser.add_argument("-r", "--refresh", help="delete the existing index and make 
                     action="store_true")
 parser.add_argument("-p", "--production", help="use the production collection",
                     action="store_true")
+parser.add_argument("-u", "--update", help="check the top level directories for added files",
+                    action="store_true")
+
 args = parser.parse_args()
 
 mongoClient = pymongo.MongoClient()
@@ -225,6 +228,9 @@ mongoCollection.create_index([("FileName", "text"),
                               ("Year", "text"),
                               ("Number", "text"),
                               ("AbsoluteFilePath", "text")])
+
 for directory in directories:
     if os.path.exists(directory):
+        if args.update:
+            os.remove(directory + "/mycc.indexed")
         index_directory(directory)
