@@ -33,32 +33,35 @@ def index(request):
         context["sort_type"] = "Relevance"
     if 'keywords' in get_params:
         context['keywords'] = get_params['keywords']
-        query = {"$text": {"$search": get_params['keywords']}}
-        if context['format'] != 'Any':
-            query["Format"] = context['format']
-        if context['download_type'] != 'Any':
-            query["DownloadType"] = context['download_type']
-        cursor = mongo_collection.find(query)
+        cursor = mongo_collection.find({"$text": {"$search": get_params['keywords']}}, {'score': {"$meta": 'textScore'}})
         if context['sort_type'] == "FileName":
             cursor.sort("FileName", pymongo.ASCENDING)
+        else:
+            cursor.sort([('score', {'$meta': 'textScore'})])
         absolute_path_roots = [
             ["/mnt/", "http://192.168.11.23/"],
             ["/home/james/broken", "http://127.0.0.1/broken/"],
         ]
         for comic in cursor:
+            if context['format'] != 'Any':
+                if comic["Format"] != context['format']:
+                    continue
+            if context['download_type'] != 'Any':
+                if comic["DownloadType"] != context["download_type"]:
+                    continue
             fields_for_link_title = []
             for field in (
-                          'Series',
-                          'Number',
-                          'Title',
-                          'Writer',
-                          'Penciller',
-                          'Genre',
-                          'Publisher',
-                          'Format',
-                          'DownloadType',
-                          'Summary',
-                          'FileName'):
+                    'Series',
+                    'Number',
+                    'Title',
+                    'Writer',
+                    'Penciller',
+                    'Genre',
+                    'Publisher',
+                    'Format',
+                    'DownloadType',
+                    'Summary',
+                    'FileName'):
                 if field in comic:
                     fields_for_link_title.append(field + " : " + str(comic[field]))
             comic['LinkTitle'] = "\n".join(fields_for_link_title)

@@ -233,4 +233,5 @@ for directory in directories:
     if os.path.exists(directory):
         if args.update:
             os.remove(directory + "/mycc.indexed")
+            os.remove(directory + "/index.html")
         index_directory(directory)
