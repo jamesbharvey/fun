@@ -227,7 +227,18 @@ mongoCollection.create_index([("FileName", "text"),
                               ("Writer", "text"),
                               ("Year", "text"),
                               ("Number", "text"),
-                              ("AbsoluteFilePath", "text")])
+                              ("AbsoluteFilePath", "text")],
+                             weights={
+                                 'FileName': 10,
+                                 'Series': 5,
+                                 "Title":1,
+                                 "Number": 5,
+                                 'Summary': 1,
+                                 "Writer": 1,
+                                 "Year": 1,
+                                 "AbsoluteFilePath": 5,
+                             }
+                             )
 
 for directory in directories:
     if os.path.exists(directory):
