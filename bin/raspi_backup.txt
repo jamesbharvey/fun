@@ -1,0 +1,9 @@
+Do
+
+$ sudo fdisk -l
+
+find the device, let's say it's /dev/sdd
+
+to make the backup
+
+$ sudo dd bs=4M if=/dev/sdd of=raspbian3-good1-32gb.img

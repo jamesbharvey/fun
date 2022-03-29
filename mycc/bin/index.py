@@ -18,14 +18,19 @@ class ComicFileHandler:
         self.to_index = {}
 
     def parse_and_set_xml_fields(self, xml_path):
-        xml_path = os.path.basename(xml_path)
-        tree = xml.etree.ElementTree.parse(xml_path)
-        root = tree.getroot()
-        if root.tag != 'ComicInfo':
-            warnings.warn("tried to parse xml file[" + xml_path + "] that is not ComicInfo")
+        try:
+            tree = xml.etree.ElementTree.parse(xml_path)
+            root = tree.getroot()
+            if root.tag != 'ComicInfo':
+                warnings.warn("tried to parse xml file[" + xml_path + "] that is not ComicInfo")
+                return
+            for child in root:
+                if child.text is not None:
+                    self.to_index[child.tag] = child.text
+        except:
+            warnings.warn("error parsing xml file [" + xml_path + "] for comic archive file ["
+                          + self.archive_path + "]")
             return
-        for child in root:
-            self.to_index[child.tag] = child.text
 
     def set_download_type(self):
         match = re.search('\d{4}\.\d{1,2}\.\d{1,2} Weekly Pack', self.to_index['AbsoluteFilePath'])
@@ -63,7 +68,7 @@ class ComicFileHandler:
     def set_format(self, page_count):
         # yes this is crude and will not work for Euro Comics, etc.
         # picked 82 for 80-page giants + cover + "scanned by" page
-        if 'PageCount' in self.to_index:
+        if 'PageCount' in self.to_index and self.to_index['PageCount'] is not None:
             page_count = int(self.to_index['PageCount'])
         if page_count > 82:
             self.to_index['Format'] = 'Trade'
@@ -77,7 +82,7 @@ class ComicFileHandler:
                 self.set_format(page_count)
                 xml_file_names = list(filter(lambda x: x.lower().endswith('.xml'), zfile.namelist()))
                 if len(xml_file_names) != 1 and len(xml_file_names) != 0:
-                    warnings.warn("multiple xml files in .cbr[" + self.archive_path + "]....")
+                    warnings.warn("multiple xml files in .cbz[" + self.archive_path + "]....")
                     for filename in xml_file_names:
                         warnings.warn("xml file name is [" + filename + "]", stacklevel=1)
                 for xml_file_name in xml_file_names:
@@ -123,6 +128,7 @@ class ComicFileHandler:
                 warnings.warn("couldn't extract file[" + xml_file_name +
                               "] from rar archive[" + self.archive_path + "]")
                 return []
+            xml_file_name = os.path.basename(xml_file_name)
             self.parse_and_set_xml_fields(xml_file_name)
         self.set_format(page_count)
 
@@ -130,26 +136,15 @@ class ComicFileHandler:
         self.set_non_xml_fields()
         with open(self.archive_path, 'rb') as f:
             pdf = PdfFileReader(f)
-            doc_info = pdf.getDocumentInfo()
             number_of_pages = pdf.getNumPages()
-            self.to_index['Writer'] = doc_info.author
-            self.to_index['Title'] = doc_info.title
             self.to_index['PageCount'] = number_of_pages
             self.set_format(number_of_pages)
-
-
-mongoClient = pymongo.MongoClient()
-mongoDbName = mongoClient['mycc']
-mongoCollection = mongoDbName['comics']
-mongoCollection.create_index([("FileName", "text"),
-                              ("Series", "text"),
-                              ("Title", "text"),
-                              ("Summary", "text"),
-                              ("Genre", "text"),
-                              ("Writer", "text"),
-                              ("Penciller", "text"),
-                              ("Year", "text"),
-                              ("Number", "text")])
+            doc_info = pdf.getDocumentInfo()
+            if doc_info is not None:
+                if doc_info.author is not None:
+                    self.to_index['Writer'] = doc_info.author
+                if doc_info.title is not None:
+                    self.to_index['Title'] = doc_info.title
 
 
 def insert_comic(dict_to_index):
@@ -162,7 +157,7 @@ def index_directory(directory):
     if os.path.exists("mycc.indexed") and not args.force:
         warnings.warn(
             "Directory [" + directory + "] already indexed. To re-index it remove the file mycc.indexed from the "
-            + "directory and run again.")
+            + "directory and run again, or run with --force.")
         os.chdir(old_dir)
         return
     file_names = glob.glob('*.[Cc][Bb][ZzRr]')
@@ -197,6 +192,10 @@ def index_directory(directory):
 
 directories = [
     '/mnt/buffalo2tb/done',
+    '/mnt/buffalo2tb/torrents.done',
+    '/mnt/buffalo2tb/torrents.done2',
+    '/mnt/buffalo2tb/torrents.automoved',
+    '/mnt/seagate8tb/torrents.done',
     '/home/james/broken',
 ]
 parser = argparse.ArgumentParser()
@@ -204,8 +203,46 @@ parser.add_argument("-v", "--verbose", help="increase output verbosity",
                     action="store_true")
 parser.add_argument("-f", "--force", help="index files regardless",
                     action="store_true")
+parser.add_argument("-r", "--refresh", help="delete the existing index and make a new one",
+                    action="store_true")
+parser.add_argument("-p", "--production", help="use the production collection",
+                    action="store_true")
+parser.add_argument("-u", "--update", help="check the top level directories for added files",
+                    action="store_true")
+
 args = parser.parse_args()
+
+mongoClient = pymongo.MongoClient()
+mongoDbName = mongoClient['mycc']
+if args.production:
+    mongoCollection = mongoDbName['comics']
+else:
+    mongoCollection = mongoDbName['test']
+if args.refresh:
+    mongoCollection.drop()
+mongoCollection.create_index([("FileName", "text"),
+                              ("Series", "text"),
+                              ("Title", "text"),
+                              ("Summary", "text"),
+                              ("Writer", "text"),
+                              ("Year", "text"),
+                              ("Number", "text"),
+                              ("AbsoluteFilePath", "text")],
+                             weights={
+                                 'FileName': 10,
+                                 'Series': 5,
+                                 "Title":1,
+                                 "Number": 5,
+                                 'Summary': 1,
+                                 "Writer": 1,
+                                 "Year": 1,
+                                 "AbsoluteFilePath": 5,
+                             }
+                             )
 
 for directory in directories:
     if os.path.exists(directory):
+        if args.update:
+            os.remove(directory + "/mycc.indexed")
+            os.remove(directory + "/index.html")
         index_directory(directory)
