@@ -1,0 +1,11 @@
+[Unit]
+Description=mycc comic book search engine
+
+[Service]
+Type=simple
+ExecStart=/home/james/fun/mycc/bin/run_mycc.sh
+User=james
+Group=adm
+
+[Install]
+WantedBy=multi-user.target
