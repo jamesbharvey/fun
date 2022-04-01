@@ -234,7 +234,7 @@ mongoCollection.create_index([("FileName", "text"),
                                  "Title":1,
                                  "Number": 5,
                                  'Summary': 1,
-                                 "Writer": 1,
+                                 "Writer": 5,
                                  "Year": 1,
                                  "AbsoluteFilePath": 5,
                              }

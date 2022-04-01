@@ -1,5 +1,6 @@
 
-source ~/humbledownload.env/bin/activate
+cd ~/humblebundle-downloader
+pipenv shell
+cd /mnt/seagate8tb
 
-cd /media/pi/seagate4tb
-hbd --cookie-file cookies.txt --library-path humblebundle.all --progress -p ebook
+hbd --cookie-file humblebundle.com_cookies.txt --library-path humblebundle.all --keys XXXXX --progress -p ebook
