@@ -1,0 +1,9 @@
+[Unit]
+Description=Service that runs grovepi stuff
+
+[Service]
+Type=simple
+ExecStart=/home/pi/fun/grovepi/Home_Weather_Display.py
+
+[Install]
+WantedBy=multi-user.target

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Home_Weather_Display.py
 #
 # This is an project for using the Grove RGB LCD Display and the Grove DHT Sensor from the GrovePi starter kit
@@ -47,8 +49,8 @@ while True:
     try:
         # get the temperature and Humidity from the DHT sensor
         [ temp,hum ] = dht(dht_sensor_port,dht_sensor_type)
-        print(strftime("%Y-%b-%d %H:%M:%S",localtime()))
-        print( temp, "C ", hum,"% Hum.\t")
+#        print(strftime("%Y-%b-%d %H:%M:%S",localtime()))
+#        print( temp, "C ", hum,"% Hum.\t")
 
 
         # check if we have nans
@@ -65,11 +67,11 @@ while True:
         + "\n" + t + "C " +  h + "% Hum")
 
         if (time.time() - last_sent_time) > 30:
-            print("send packet")
+#           print("send packet")
             last_sent_time = time.time()
             send_to_graphite(t,h)
-        else:
-            print("don't send packet")
+#        else:
+#            print("don't send packet")
 
     except (IOError, TypeError) as e:
         print(str(e))
