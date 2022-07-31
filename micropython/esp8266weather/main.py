@@ -15,6 +15,7 @@ ssid, password = first_line.split()
 sta_if = network.WLAN(network.STA_IF)
 sta_if.active(True)
 sta_if.connect(ssid, password)
+
 last_sent_time = 0
 UDP_PORT = 2004
 UDP_IP = "192.168.11.23"
@@ -35,6 +36,10 @@ def send_to_graphite(temp, humi):
 
 while True:
     try:
+        while not sta_if.isconnected():
+            print("retry connecting to file ssid[%s]" % ssid)
+            sta_if.connect(ssid, password)
+            sleep(30)
         sensor.measure()
         t = sensor.temperature()
         h = sensor.humidity()
