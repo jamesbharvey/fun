@@ -11,6 +11,7 @@ sensor = dht.DHT11(Pin(5))
 secrets_file = open("wifisecrets.txt",'r')
 first_line = secrets_file.readline()
 ssid, password = first_line.split()
+secrets_file.close()
 
 sta_if = network.WLAN(network.STA_IF)
 sta_if.active(True)
