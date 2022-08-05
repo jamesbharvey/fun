@@ -47,7 +47,7 @@ while True:
         print('Temperature: %3.1f C' % t)
         print('Humidity: %3.1f %%' % h)
         send_to_graphite(t, h)
-        sleep(28)
+        sleep(29)
 
     except OSError as e:
         print('Sensor Reading Failed')

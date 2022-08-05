@@ -77,7 +77,9 @@ while True:
         print(str(e))
         # and since we got a type error
         # then reset the LCD's text
+        setRGB(0, 255, 0)
         setText("")
+        sleep(10)
 
     except KeyboardInterrupt as e:
         print(str(e))
