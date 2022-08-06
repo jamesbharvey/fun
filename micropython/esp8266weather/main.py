@@ -5,7 +5,7 @@ import socket
 from time import sleep
 from machine import Pin
 
-sensor = dht.DHT11(Pin(5))
+sensor = dht.DHT22(Pin(5))
 
 
 secrets_file = open("wifisecrets.txt",'r')
@@ -14,8 +14,10 @@ ssid, password = first_line.split()
 secrets_file.close()
 
 sta_if = network.WLAN(network.STA_IF)
+ap_if = network.WLAN(network.AP_IF)
 sta_if.active(True)
 sta_if.connect(ssid, password)
+ap_if.active(False)
 
 last_sent_time = 0
 UDP_PORT = 2004
@@ -41,6 +43,8 @@ while True:
             print("retry connecting to file ssid[%s]" % ssid)
             sta_if.connect(ssid, password)
             sleep(30)
+            ap_if.active(False)
+
         sensor.measure()
         t = sensor.temperature()
         h = sensor.humidity()
