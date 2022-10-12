@@ -5,7 +5,7 @@ import urllib.parse
 
 from pymongo import MongoClient
 
-mongo_client: MongoClient = pymongo.MongoClient()
+mongo_client: MongoClient = pymongo.MongoClient("mongodb://myccuser:secretpassword@192.168.11.23:27017")
 mongo_db_name = mongo_client['mycc']
 mongo_collection = mongo_db_name['comics']
 

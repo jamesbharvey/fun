@@ -5,7 +5,7 @@ import warnings
 import zipfile
 import glob
 import subprocess
-import xml.etree.ElementTree
+from defusedxml.ElementTree import parse
 import pymongo
 import argparse
 from PyPDF4 import PdfFileReader
@@ -19,7 +19,7 @@ class ComicFileHandler:
 
     def parse_and_set_xml_fields(self, xml_path):
         try:
-            tree = xml.etree.ElementTree.parse(xml_path)
+            tree = parse(xml_path)
             root = tree.getroot()
             if root.tag != 'ComicInfo':
                 warnings.warn("tried to parse xml file[" + xml_path + "] that is not ComicInfo")
@@ -212,7 +212,7 @@ parser.add_argument("-u", "--update", help="check the top level directories for 
 
 args = parser.parse_args()
 
-mongoClient = pymongo.MongoClient()
+mongoClient = pymongo.MongoClient("mongodb://myccuser:secretpassword@192.168.11.23:27017")
 mongoDbName = mongoClient['mycc']
 if args.production:
     mongoCollection = mongoDbName['comics']
