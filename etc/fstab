@@ -1,0 +1,14 @@
+# /etc/fstab: static file system information.
+#
+#/dev/sda1: LABEL="buffalo2tb" UUID="9068645568643BDA" TYPE="ntfs" PARTUUID="2571c8ff-01"
+# Use 'blkid' to print the universally unique identifier for a device; this may
+# be used with UUID= as a more robust way to name devices that works even if
+# disks are added and removed. See fstab(5).
+#
+# <file system>             <mount point>  <type>  <options>  <dump>  <pass>
+UUID=4C5E-78C1                            /boot/efi       vfat    umask=0077 0 2
+UUID=db58e7fc-a368-480a-87ca-cd888ff46e97 /               ext4    defaults   0 1
+UUID=9068645568643BDA                     /mnt/buffalo2tb ntfs    defaults   0 0
+UUID=0234F4C334F4BB2D                     /mnt/seagate8tb ntfs    defaults   0 0
+UUID=409EF01D9EF00D62                     /mnt/buffalo8tb ntfs    defaults   0 0
+
