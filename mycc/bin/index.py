@@ -152,7 +152,6 @@ class ComicFileHandler:
 def insert_comic(dict_to_index):
     resp = esClient.index(index=esIndexName, document=dict_to_index)
     mongoCollection.insert_one(dict_to_index)
-    resp = esClient.index(index=esIndexName, document=dict_to_index)
 
 def index_directory(directory):
     old_dir = os.getcwd()
@@ -199,7 +198,7 @@ directories = [
     '/mnt/buffalo2tb/torrents.done2',
     '/mnt/buffalo2tb/torrents.automoved',
     '/mnt/seagate8tb/torrents.done',
-    '/mnt/buffalot'
+    '/mnt/buffalo8tb/torrents.done',
     '/home/james/broken',
 ]
 parser = argparse.ArgumentParser()
