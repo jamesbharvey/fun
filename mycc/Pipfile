@@ -8,6 +8,7 @@ django = "*"
 pymongo = "*"
 pypdf4 = "*"
 defusedxml = "*"
+elasticsearch = "*"
 
 [dev-packages]
 
