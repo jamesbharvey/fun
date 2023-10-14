@@ -10,6 +10,8 @@ import pymongo
 import argparse
 from PyPDF4 import PdfFileReader
 from pathlib import Path
+from elasticsearch import Elasticsearch
+
 
 
 class ComicFileHandler:
@@ -148,8 +150,9 @@ class ComicFileHandler:
 
 
 def insert_comic(dict_to_index):
+    resp = esClient.index(index=esIndexName, document=dict_to_index)
     mongoCollection.insert_one(dict_to_index)
-
+    resp = esClient.index(index=esIndexName, document=dict_to_index)
 
 def index_directory(directory):
     old_dir = os.getcwd()
@@ -196,6 +199,7 @@ directories = [
     '/mnt/buffalo2tb/torrents.done2',
     '/mnt/buffalo2tb/torrents.automoved',
     '/mnt/seagate8tb/torrents.done',
+    '/mnt/buffalot'
     '/home/james/broken',
 ]
 parser = argparse.ArgumentParser()
@@ -214,10 +218,18 @@ args = parser.parse_args()
 
 mongoClient = pymongo.MongoClient("mongodb://myccuser:secretpassword@192.168.11.23:27017")
 mongoDbName = mongoClient['mycc']
+
+esClient = Elasticsearch("http://192.168.11.23:9200")
+esIndexName=""
+
+
 if args.production:
     mongoCollection = mongoDbName['comics']
+    esIndexName = "comics"
 else:
     mongoCollection = mongoDbName['test']
+    esIndexName = "test1"
+
 if args.refresh:
     mongoCollection.drop()
 mongoCollection.create_index([("FileName", "text"),
