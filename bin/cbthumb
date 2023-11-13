@@ -100,7 +100,7 @@ for (@cbr_files) {
     my @jpgs;
     while (<$lines>) {
  	chomp; 
-	next unless /\.(jpg|gif|png)$/i;
+	next unless /\.(jpg|gif|png|jpeg)$/i;
 	next unless /\d/;
 	push @jpgs, $_;
     }
