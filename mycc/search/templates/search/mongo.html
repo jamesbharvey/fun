@@ -1,0 +1,111 @@
+<html>
+    <head>
+        <title>My Comic Collection Search</title>
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'search/pico.min.css' %}">
+        <style>
+            .wrapper {
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                row-gap: 20px;
+                column-gap: 20px;
+            }
+            .hidden {
+                display: none
+            }
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>
+    </head>
+    <body>
+        <br>
+            <div class="container-fluid">
+                <div id="advanced_search_button"></div>
+                    <form>
+                        <input type="search" width="90%" id="keywords" name="keywords" {% if keywords != '' %}value="{{ keywords }}"{% endif %}>
+                        <input type="hidden" id="search_mode" name="search_mode" value="{{ search_mode }}">
+                    <div id="advanced_search" class="hidden">
+                                <div class="wrapper">
+                                    <legend><strong>Format</strong></legend>
+                                    <label for="Any">
+                                        <input type="radio" id="Any" name="format" value="Any"
+                                               {% if format == 'Any' %}checked{% endif %}>
+                                        Any
+                                    </label>
+                                    <label for="Floppy">
+                                        <input type="radio" id="Floppy" name="format" value="Floppy"
+                                            {% if format == 'Floppy'%}checked{% endif %}>
+                                        Floppy
+                                    </label>
+                                    <label for="Trade">
+                                        <input type="radio" id="Trade" name="format" value="Trade"
+                                            {% if format == 'Trade' %}checked{% endif %}>
+                                        Trade
+                                    </label>
+                                </div>
+                                <div class="wrapper">
+                                    <legend><strong>Download Type</strong></legend>
+                                    <label for="AnyDownloadType">
+                                        <input type="radio" id="AnyDownloadType" name="download_type" value="Any"
+                                               {% if download_type == 'Any' %}checked{% endif %}>
+                                        Any
+                                    </label>
+                                    <label for="SingleDownloadType">
+                                        <input type="radio" id="SingleDownloadType" name="download_type" value="Single"
+                                               {% if download_type == 'Single' %}checked{% endif %}>
+                                        Single
+                                    </label>
+                                    <label for="WeeklyDownloadType">
+                                        <input type="radio" id="WeeklyDownloadType" name="download_type" value="Weekly"
+                                               {% if download_type == 'Weekly' %}checked{% endif %}>
+                                        Weekly
+                                    </label>
+                                    <label for="CollectionDownloadType">
+                                        <input type="radio" id="CollectionDownloadType" name="download_type" value="Collection"
+                                               {% if download_type == 'Collection' %}checked{% endif %}>
+                                        Collection
+                                    </label>
+                                </div>
+                                <div class="wrapper">
+                                    <legend><strong>Sort By</strong></legend>
+                                    <label for="SortByRelevanceType">
+                                        <input type="radio" id="SortByRelevanceType" name="sort_type" Value="Relevance"
+                                            {% if sort_type == 'Relevance' %}checked{% endif %}>
+                                        Relevance
+                                    </label>
+                                    <label for="SortByFileNameAscendingType">
+                                        <input type="radio" id="SortByFileNameAscendingType" name="sort_type" Value="FileName"
+                                            {% if sort_type == 'FileName' %}checked{% endif %}>
+                                        File Name
+                                    </label>
+                                </div>
+                    </div>
+                    </form>
+                {% if num_comics > 0 %}
+                    Search resulted in {{ num_comics }} {% if num_comics > 1 %}comics.{% else %}comic.{% endif %}
+                    <br>
+                    <br>
+                {% endif %}
+                <div class="wrapper">
+                {% for comic in comics %}
+                <div>
+                    <a title="{{ comic.LinkTitle }}" href="{{ comic.Url }}">
+                        <span class="context-menu-one"><img src="{{ comic.Url}}.jpg"></span>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    <!-- Load React. -->
+    <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    <!-- Load our React component. -->
+    <script src="{% static 'search/advanced_search.js' %}"></script>
+        <script src="{% static 'search/custom_context_menu.js' %}"></script>
+    </body>
+</html>
