@@ -99,7 +99,14 @@
                 </div>
                 {% endfor %}
             </div>
-        </div>
+                {% if num_comics > 0 and from|add:size < num_comics %}
+                <br>
+                <br>
+                <a href="/search/elastic?keywords={{ keywords }}&from={{ from|add:size }}">Next {{ size }} &gt;&gt;</a>
+                <br>
+                <br>
+                {% endif %}
+            </div>
     <!-- Load React. -->
     <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
     <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>

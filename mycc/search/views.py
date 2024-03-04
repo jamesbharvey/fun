@@ -98,6 +98,14 @@ def elastic(request):
         context['download_type'] = get_params['download_type']
     else:
         context['download_type'] = 'Any'
+    if 'from' in get_params:
+        context['from'] = get_params['from']
+    else:
+        context['from'] = 0
+    if 'size' in get_params:
+        context['size'] = get_params['size']
+    else:
+        context['size'] = 20
     if 'sort_type' in get_params:
         context["sort_type"] = get_params["sort_type"]
     else:
@@ -105,6 +113,8 @@ def elastic(request):
     if 'keywords' in get_params:
         context['keywords'] = get_params['keywords']
         query = {
+            "from": context['from'],
+            "size": context['size'],
             "query": {
                 "match": {
                     "FileName": context['keywords']
