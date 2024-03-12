@@ -87,7 +87,8 @@
                     </form>
                 {% if num_comics > 0 %}
                     Search resulted in {{ num_comics }} {% if num_comics > 1 %}comics.{% else %}comic.{% endif %}
-                    <br>
+                    Showing results {{ from }} through {{ from|add:this_page_num_results }}.
+                <br>
                     <br>
                 {% endif %}
                 <div class="wrapper">
@@ -102,7 +103,7 @@
                 {% if num_comics > 0 and from|add:size < num_comics %}
                 <br>
                 <br>
-                <a href="/search/elastic?keywords={{ keywords }}&from={{ from|add:size }}">Next {{ size }} &gt;&gt;</a>
+                <a href="/search/elastic?keywords={{ keywords }}&from={{ from|add:size }}">Next {{ next_page_num_results }}&gt;&gt;</a>
                 <br>
                 <br>
                 {% endif %}
