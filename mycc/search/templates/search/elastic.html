@@ -87,7 +87,7 @@
                     </form>
                 {% if num_comics > 0 %}
                     Search resulted in {{ num_comics }} {% if num_comics > 1 %}comics.{% else %}comic.{% endif %}
-                    Showing results {{ from }} through {{ from|add:this_page_num_results }}.
+                    Showing results {{ from|add:1 }} through {{ from|add:this_page_num_results }}.
                 <br>
                     <br>
                 {% endif %}
