@@ -83,6 +83,11 @@ rewinddir($dir_handle);
 my @cbz_files = sort grep { /\.cbz$/i && -f } readdir($dir_handle);
 rewinddir($dir_handle);
 my @pdf_files = sort grep { /\.pdf$/i && -f } readdir($dir_handle);
+rewinddir($dir_handle);
+my @epub_files = sort grep { /\.epub$/i && -f } readdir($dir_handle);
+rewinddir($dir_handle);
+my @mobi_files = sort grep { /\.mobi$/i && -f } readdir($dir_handle);
+closedir($dir_handle);
 
 for (@cbr_files) {
     my $rar_file = $_;
@@ -191,6 +196,11 @@ for (@pdf_files) {
     }
 }
 
+for (@mobi_files, @epub_files) {
+    make_default_thumbnail($_);
+}
+
+
 opendir ($dir_handle,".") || die "can't opendir '.' ";
 @cbr_files = grep { /\.cbr$/i && -f } readdir($dir_handle);
 rewinddir($dir_handle);
@@ -198,8 +208,12 @@ rewinddir($dir_handle);
 rewinddir($dir_handle);
 @pdf_files = grep { /\.pdf$/i && -f } readdir($dir_handle);
 rewinddir($dir_handle);
+@epub_files = sort grep { /\.epub$/i && -f } readdir($dir_handle);
+rewinddir($dir_handle);
+@mobi_files = sort grep { /\.mobi$/i && -f } readdir($dir_handle);
+rewinddir($dir_handle);
 my @dirs = grep { -d && $_ ne '.' && $_ ne '..' } readdir($dir_handle);
-
+closedir($dir_handle);
 my $asset_dir = "$FindBin::Bin/../assets";
 copy "$asset_dir/wikimedia_commons_up_arrow.svg", "up_arrow.svg";
 
@@ -262,7 +276,7 @@ say "</div>"
 }
 say "  <br>";
 say "    <div class=\"wrapper\">";
-my @all_files = sort ( @cbr_files, @cbz_files, @pdf_files) ;
+my @all_files = sort ( @cbr_files, @cbz_files, @pdf_files, @mobi_files, @epub_files) ;
 for (@all_files) {
     Encode::_utf8_on($_); #risky but it fixed some broken links
     my $archive = URI::Encode::uri_encode($_, { encode_reserved => 1 } );
